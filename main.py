@@ -16,14 +16,15 @@ import matplotlib.image as mpimg
 import time
 import module1 as m1
 from postproc import clustercount,postprocess
+import pandas as pd
 
 # Model and image file names.
 model_file_name = "./chkp/paper-model.pth"
 
-image_file_name = "./img/bacchetree.png"
+image_file_name = "./img/DJI_20230622120638_0022_D.JPG"
 # Specify the text description,
 # (i.e., response to "what object should be counted?").
-text = "the number of berries"
+text = "the number of blueberries"
 
 #size of the square (will be resized to 224*224 once in the model)
 sqsz=224
