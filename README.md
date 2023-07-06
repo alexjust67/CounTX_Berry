@@ -1,3 +1,5 @@
+### THE ENVIRONMENT FOR THIS FORK MUST BE SET UP AS THE ONE ON THE MAIN BRANCH
+
 ## CounTX: Open-world Text-specified Object Counting
 Niki Amini-Naieni, Kiana Amini-Naieni, Tengda Han, & Andrew Zisserman
 
