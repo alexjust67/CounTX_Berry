@@ -15,14 +15,15 @@ from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
 import module1 as m1
+from postproc import clustercount,postprocess
 
 # Model and image file names.
 model_file_name = "./chkp/paper-model.pth"
 
-image_file_name = "./img/drone1.jpg"
+image_file_name = "./img/bacchetree.png"
 # Specify the text description,
 # (i.e., response to "what object should be counted?").
-text = "the number of green leaves"
+text = "the number of berries"
 
 #size of the square (will be resized to 224*224 once in the model)
 sqsz=224
@@ -88,14 +89,21 @@ for i in image:                       #loop through the image
 
 pred_cnt = torch.sum(density_map / 60).item()       #predicted count
 
+np.save("./img/results/density_map.npy",density_map.numpy())
+
 print("Predicted Count: " + str(pred_cnt)+"  Prompt: "+text1)
 
-a=(density_map/84).squeeze(0).squeeze(0).numpy()
+a=postprocess(density_map.numpy(),tresh=0.4)
 
-img = mpimg.imread(image_file_name)
-im1=plt.imshow(img,extent=(0,dew,deh,0))
-im2=plt.imshow(a, cmap='jet', interpolation='nearest',alpha=0.75)
+img=mpimg.imread(image_file_name)
+fig,ax = plt.subplots(1,2,sharex=True,sharey=True)
+ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
+ax[1].imshow(img,extent=(0,dew,deh,0))
+ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
 
-plt.title("Predicted Count: " + str(pred_cnt))
+plt.title("Predicted Count: " + str(clustercount(density_map.numpy(),tresh=0.4,tresh2=0.4)))
+text1.replace(" ","_")
+text1=text1+"_"+image_file_name
+plt.savefig(f"./img/results/resu.jpg",dpi=1500)
 plt.show()
 

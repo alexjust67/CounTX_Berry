@@ -2,3 +2,6 @@ util/__pycache__/pos_embed.cpython-37.pyc
 chkp/paper-model.pth
 __pycache__/module1.cpython-37.pyc
 __pycache__/models_vit.cpython-37.pyc
+__pycache__/postproc.cpython-37.pyc
+img/results/density_mapbig.npy
+img/results/density_map.npy
