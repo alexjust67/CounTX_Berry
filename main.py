@@ -40,7 +40,7 @@ text1=text[:]
 image = Image.open(image_file_name).convert("RGB")
 image.load()
 
-w1,h1,image=m1.split_image(image)
+w1,h1,image=m1.split_image(image,sqsz)
 
 w=0
 h=0

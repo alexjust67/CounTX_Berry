@@ -14,6 +14,7 @@ from models_vit import CrossAttentionBlock
 from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
+import cv2
 
 preprocess = transforms.Compose(
     [
@@ -243,18 +244,20 @@ def runmodel(image,text,model,tokenizer):
 
 def split_image(image,sq_size=224):     #take the PIL image, rescale it to the closest multiple of TODO:sq_size in height and ind width and divide it into 224x224 squares as an iterable
     w,h=image.size
-    w2=math.floor(w/224)*224
-    h2=math.floor(h/224)*224
+    w2=math.floor(w/sq_size)*sq_size
+    h2=math.floor(h/sq_size)*sq_size
     image=image.resize((w2,h2),Image.LANCZOS)
     image=np.array(image)
     first=True
-    for i in range(0, w2, 224):
-        for j in range(0, h2, 224):
+    for i in range(0, w2, sq_size):
+        for j in range(0, h2, sq_size):
             if first:
-                im=image[i:i+224, j:j+224]
+                im=image[i:i+sq_size, j:j+sq_size]
                 im=np.expand_dims(im, 3)
                 first=False
             else:
-                ima=np.expand_dims(image[j:j+224, i:i+224], 3)
+                ima=np.expand_dims(image[j:j+sq_size, i:i+sq_size], 3)
                 im=np.append(im,ima,axis=3)
     return w2,h2,np.transpose(im,(3,0,1,2))
+
+
