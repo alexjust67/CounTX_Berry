@@ -26,13 +26,11 @@ def mainf(
         dm_save=True,
         showimage=True,
         recl=60,
-        tresh=0.4
+        tresh=0.4,
+        text_add="",
+        ground_truth="",
+        mxlen=20
         ):
-
-
-
-
-
 
     #size of the square (will be resized to 224*224 once in the model)
     
@@ -87,37 +85,36 @@ def mainf(
             except:
                 avgperpoint=0
             
-            print(h//384," :  "+str(deh//384)+"    ",w//384," :  "+str(dew//384)+"    ",(tot)," : ",image.shape[0],"  ",str(round((tot/image.shape[0])*100,2))+"%"+ "    "+"Time remaining: ",round(avgperpoint*(image.shape[0]-tot),0),"s",end="\r")
+            print(h//384," :  "+str(deh//384)+"    ",w//384," :  "+str(dew//384)+"    ",(tot)," : ",image.shape[0],"  ",str(round((tot/image.shape[0])*100,2))+"%"+ "    "+"Time remaining: ",round(avgperpoint*(image.shape[0]-tot),0),"s"+"   ",text_add,end="\r")
             tot+=1
         
         else:
             time2.insert(0,time.time())
+
             tot+=1
             h=0
             w=w+384
-
+    
+    print("Done calculating density map.       "+text_add)
     mod_pred_cnt = torch.sum(density_map / 60).item()       #predicted count
 
     if dm_save: np.save("./img/results/density_map.npy",density_map.numpy())
 
-    #print("Predicted Count: " + str(pred_cnt)+"  Prompt: "+text1)
+    print("calculating clusters...   ")
     
     clsc,clslst=clustercount(density_map.numpy(),tresh=tresh,tresh2=tresh,recl=recl)
     
-    if showimage:
+    a=postprocess(density_map.numpy(),tresh=tresh)
 
-        a=postprocess(density_map.numpy(),tresh=tresh)
-
-        img=mpimg.imread(image_file_name)
-        fig,ax = plt.subplots(1,2,sharex=True,sharey=True)
-        ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
-        ax[1].imshow(img,extent=(0,dew,deh,0))
-        ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
-
+    img=mpimg.imread(image_file_name)
+    fig,ax = plt.subplots(1,3,sharex=True,sharey=True)
+    ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
+    ax[1].imshow(img,extent=(0,dew,deh,0))
+    ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
+    ax[2].imshow(density_map.numpy(), cmap='jet', interpolation='nearest',alpha=1)
 
     clusx=[]
     i=0
-
     for cl in clslst:
         clusx.append([10000000,10000000,0,0])
         for clus in cl:
@@ -137,36 +134,27 @@ def mainf(
         clusx[it][3]=clusx[it][3]-clusx[it][1]
     #clusx=[minx,miny,dx,dy]
 
+    #check if the cluster is longer than mxlen px, if it is remove it from the list
+    i=0
+    while i<len(clusx):
+        if clusx[i][2]>mxlen or clusx[i][3]>mxlen:
+            clslst.pop(i)
+            clusx.pop(i)
+            i-=1
+        i+=1
     
-    if showimage:
-        
-        for it in clusx:
-            ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
+    for it in clusx:
+        ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
 
-        plt.title("Predicted Count: " + str(len(clslst)))
-        text1.replace(" ","_")
-        text1=text1+"_"+image_file_name
-        plt.savefig(f"./img/results/resu.jpg",dpi=1500)
-        plt.show()
+    plt.title("Pred: " + str(len(clslst)) + "G-T: "+ground_truth)
+    text1.replace(" ","_")
+    text1=text1+"_"+image_file_name
+
+    image_file_name=image_file_name[(image_file_name.rfind("/")+1):]
+
+    plt.savefig(f"./img/results/{image_file_name}",dpi=1500)
+    if showimage: plt.show()
+    plt.close('all')
     
     return mod_pred_cnt, clslst, tresh, recl, sqsz
 
-predc,clst,tre,recl,sqz=mainf(
-    
-    model_file_name = "./chkp/paper-model.pth", #model file name
-    
-    image_file_name = "./img/bacchetree.png",   #image file name
-    
-    text = "the number of berries",             #text prompt
-    
-    sqsz=224,                                   #size of image division kernel
-    
-    dm_save=True,                               #save density map as npy
-    
-    showimage=True,                             #show also the image
-    
-    recl=60,                                    #maximum cluster finder recursion; it approximates to the area of cluster
-    
-    tresh=0.4                                   #image filtering treshold, values under this will not be taken into consideration by the clusterfinder
-
-)
