@@ -11,10 +11,10 @@ def postprocess(density_map,tresh):
     result = (density_map >= tresh) * density_map
     return result
 
-def iscluster(density_map,x,y,rec_level,tresh,lispt=[]):#TODO: add a max recursion depth to check for size of cluster
+def iscluster(density_map,x,y,rec_level,tresh,lispt,recl):#TODO: add a max recursion depth to check for size of cluster
     
 
-    if rec_level>60:
+    if rec_level>recl:
         reclim=True
 
     if density_map[x,y]>tresh:
@@ -23,7 +23,7 @@ def iscluster(density_map,x,y,rec_level,tresh,lispt=[]):#TODO: add a max recursi
         for i in range(-1,2):
             for j in range(-1,2):
                 if x+i>=0 and x+i<density_map.shape[0] and y+j>=0 and y+j<density_map.shape[1]:
-                    density_map,isclsn,reclim,_=iscluster(density_map,x+i,y+j,rec_level+1,tresh,lispt)
+                    density_map,isclsn,reclim,_=iscluster(density_map,x+i,y+j,rec_level+1,tresh,lispt,recl)
         if not reclim:
             return density_map,True,False,lispt
         else:
@@ -31,7 +31,7 @@ def iscluster(density_map,x,y,rec_level,tresh,lispt=[]):#TODO: add a max recursi
     else:
         return density_map,False,False,[]
 
-def clustercount(density_map, tresh=1,tresh2=0):
+def clustercount(density_map, tresh=1,tresh2=0,recl=60):
     
     a=postprocess(density_map,tresh2)
     clslis=[]
@@ -39,7 +39,7 @@ def clustercount(density_map, tresh=1,tresh2=0):
     if (True):
         for x in range(0,a.shape[0]):
             for y in range(0,a.shape[1]):
-                a,clsn,_,lst=iscluster(a,x,y,0,tresh,[])
+                a,clsn,_,lst=iscluster(a,x,y,0,tresh,[],recl)
                 if clsn==True:
                     clstr+=1
                 if len(lst)>0:
