@@ -16,15 +16,16 @@ import matplotlib.image as mpimg
 import time
 import module1 as m1
 from postproc import clustercount,postprocess
-import pandas as pd
+import matplotlib.patches as patches
+
 
 # Model and image file names.
 model_file_name = "./chkp/paper-model.pth"
 
-image_file_name = "./img/DJI_20230622120638_0022_D.JPG"
+image_file_name = "./img/bacchetree.png"
 # Specify the text description,
 # (i.e., response to "what object should be counted?").
-text = "the number of blueberries"
+text = "the number of berries"
 
 #size of the square (will be resized to 224*224 once in the model)
 sqsz=224
@@ -102,7 +103,36 @@ ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
 ax[1].imshow(img,extent=(0,dew,deh,0))
 ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
 
-plt.title("Predicted Count: " + str(clustercount(density_map.numpy(),tresh=0.4,tresh2=0.4)))
+
+clsc,clslst=clustercount(density_map.numpy(),tresh=0.4,tresh2=0.4)
+
+
+clusx=[]
+i=0
+
+for cl in clslst:
+    clusx.append([10000000,10000000,0,0])
+    for clus in cl:
+        if clus[0]<clusx[i][0]:
+            clusx[i][0]=clus[0]
+        if clus[1]<clusx[i][1]:
+            clusx[i][1]=clus[1]
+        if clus[0]>clusx[i][2]:
+            clusx[i][2]=clus[0]
+        if clus[1]>clusx[i][3]:
+            clusx[i][3]=clus[1]
+        
+    i+=1
+
+for it in range(len(clusx)):
+    clusx[it][2]=clusx[it][2]-clusx[it][0]
+    clusx[it][3]=clusx[it][3]-clusx[it][1]
+#clusx=[minx,miny,dx,dy]
+
+for it in clusx:
+    ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
+
+plt.title("Predicted Count: " + str(clsc)+str(len(clslst)))
 text1.replace(" ","_")
 text1=text1+"_"+image_file_name
 plt.savefig(f"./img/results/resu.jpg",dpi=1500)

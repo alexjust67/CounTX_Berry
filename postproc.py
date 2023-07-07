@@ -11,37 +11,41 @@ def postprocess(density_map,tresh):
     result = (density_map >= tresh) * density_map
     return result
 
-def iscluster(density_map,x,y,rec_level,tresh):#TODO: add a max recursion depth to check for size of cluster
+def iscluster(density_map,x,y,rec_level,tresh,lispt=[]):#TODO: add a max recursion depth to check for size of cluster
     
+
     if rec_level>60:
         reclim=True
 
     if density_map[x,y]>tresh:
         density_map[x,y]=0
+        lispt.append([x,y])
         for i in range(-1,2):
             for j in range(-1,2):
                 if x+i>=0 and x+i<density_map.shape[0] and y+j>=0 and y+j<density_map.shape[1]:
-                    density_map,isclsn,reclim=iscluster(density_map,x+i,y+j,rec_level+1,tresh)
+                    density_map,isclsn,reclim,_=iscluster(density_map,x+i,y+j,rec_level+1,tresh,lispt)
         if not reclim:
-            return density_map,True,False
+            return density_map,True,False,lispt
         else:
-            return density_map,False,True
+            return density_map,False,True,[]
     else:
-        return density_map,False,False
+        return density_map,False,False,[]
 
-def clustercount(density_map, tresh=1,tresh2=0.5):
+def clustercount(density_map, tresh=1,tresh2=0):
     
     a=postprocess(density_map,tresh2)
-
+    clslis=[]
     clstr=0
     if (True):
         for x in range(0,a.shape[0]):
             for y in range(0,a.shape[1]):
-                a,clsn,_=iscluster(a,x,y,0,tresh)
+                a,clsn,_,lst=iscluster(a,x,y,0,tresh,[])
                 if clsn==True:
                     clstr+=1
+                if len(lst)>0:
+                    clslis.append(lst)
 
-    print("Number of clusters: "+str(clstr))
+    #print("Number of clusters: "+str(clstr))
 
     #img = mpimg.imread("./img/drone1.jpg")
     #plt.subplot(1,2,1)
@@ -56,4 +60,4 @@ def clustercount(density_map, tresh=1,tresh2=0.5):
     # pred_cnt2 = np.sum(density_map / 60)       #predicted count
     # print("Predicted Count: " + str(pred_cnt2))
     #plt.show()
-    return clstr
+    return clstr,clslis
