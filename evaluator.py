@@ -12,13 +12,14 @@ df = pd.DataFrame(data=d)
 df_roll=pd.DataFrame(data=d)
 
 queryes=["the number of berries"]
-sqsz=[975]
+sqsz=[1000]
 recl=[60]
-tresh=[0.2,0.3,0.4,0.5,1,1.5,2,2.5,3,3.5,4,4.5,5,6,6.5]
+tresh=[1]
 mxlen=[17]
 
 notes="very big kernel to make the network see the berries as well as possible, added a max length"
 showimage=True
+
 
 for tre in tresh:
     for mxl in mxlen:
@@ -54,7 +55,11 @@ for tre in tresh:
 
                         ground_truth=filename[(filename.find("pred")+5):(filename.find("2000")-1)],
 
-                        mxlen=mxl
+                        mxlen=mxl,
+
+                        no_stride=False,
+
+                        stride=50
                         
                         )
                         
@@ -70,7 +75,7 @@ for tre in tresh:
                         
                     d3 = {'img': ["Error mean"], 'exp_val': [None], 'mod_pred': [None], 'clus_pred': [None], 'max rec': [None], 'treshold': [None], 'kern_size': [None], 'text': [text], 'model-error': [df_roll.iloc[:,8].mean()], 'clus-error': [df_roll.iloc[:,9].mean()],'Notes': [None],'delta_bacche_abs':[df_roll.iloc[:,11].mean()],'delta_bacche':[int(ground_truth)-len(clst)]}
                     df3=pd.DataFrame(data=d3)
-                    with open(f'./rolling_data/out_roll{iterat}.txt', 'w') as f:
+                    with open(f'./rolling_data/out_roll{(iterat-1)/5}.txt', 'w') as f:
                         f.write(df_roll.describe().to_string())
                     df_roll=df_roll.append(df3)
                     df_roll.to_csv(f'./rolling_data/out_roll{iterat}.csv')

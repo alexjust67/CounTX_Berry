@@ -29,7 +29,9 @@ def mainf(
         tresh=0.4,
         text_add="",
         ground_truth="",
-        mxlen=20
+        mxlen=20,
+        no_stride=True,
+        stride=50
         ):
 
     #size of the square (will be resized to 224*224 once in the model)
@@ -47,12 +49,18 @@ def mainf(
     image = Image.open(image_file_name).convert("RGB")
     image.load()
 
-    w1,h1,image=m1.split_image(image,sqsz)
-
+    if no_stride: 
+        w1,h1,image=m1.split_image(image,sqsz)
+        deh=int((h1/sqsz)*384)  #actual size of the final image
+        dew=int((w1/sqsz)*384)
+    else:
+        w1,h1,image,coord=m1.split_image_stride(image,sqsz,stride=stride,autostride=False)
+        deh=h1*384  #actual size of the final image
+        dew=w1*384
+    
     w=0
     h=0
-    deh=int((h1/sqsz)*384)  #actual size of the final image
-    dew=int((w1/sqsz)*384)
+    
 
     density_map=torch.zeros((deh,dew))    #create a zero tensor with the dimension of the final image that will be no of squares * 384(standard model output)
     tot=0
@@ -62,7 +70,16 @@ def mainf(
 
     for i in image:                       #loop through the image
         
-        density_map[h:h+384,w:w+384]=m1.runmodel(i,text,model,tokenizer)           
+        if no_stride: 
+            density_map[h:h+384,w:w+384]=m1.runmodel(i,text,model,tokenizer) 
+        else:
+             
+            inx=math.floor(coord[tot][0]*(384-(stride/sqsz)*384))          #transform the coordinate indexes in the 384 coord space
+            iny=math.floor(coord[tot][1]*(384-(stride/sqsz)*384))
+            if inx>dew-384: inx=dew-384
+            if iny>deh-384: iny=deh-384
+            denmap=m1.runmodel(i,text,model,tokenizer).squeeze(0)
+            density_map[iny:iny+384,inx:inx+384]=torch.max(density_map[iny:iny+384,inx:inx+384],denmap)      
         
         if h+384!=int((h1/sqsz)*384):                                #check if it has arrived to the bottom
             

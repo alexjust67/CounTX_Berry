@@ -260,4 +260,33 @@ def split_image(image,sq_size=224):     #take the PIL image, rescale it to the c
                 im=np.append(im,ima,axis=3)
     return w2,h2,np.transpose(im,(3,0,1,2))
 
+def split_image_stride(image,sq_size=224,autostride=False,stride=50):     #take the PIL image, rescale it to the closest multiple of TODO:sq_size in height and ind width and divide it into 224x224 squares as an iterable
+    w,h=image.size
+    w2=math.ceil(w/sq_size)
+    h2=math.ceil(h/sq_size)
+    if autostride: stride=math.floor(w/w2)
+    image=np.array(image)
+    first=True
+    cor=[]
+    inx=0
+    iny=0
+    for i in range(0, w, sq_size-stride):
+        
+        for j in range(0, h, sq_size-stride):
+            if first:
+                im=image[i:i+sq_size, j:j+sq_size]
+                im=np.expand_dims(im, 3)
+                first=False
+                cor.append([i,j])
+            else:
+                if j+sq_size>h: j=h-sq_size
+                if i+sq_size>w: i=w-sq_size
+                ima=np.expand_dims(image[j:j+sq_size, i:i+sq_size], 3)
+                im=np.append(im,ima,axis=3)
+                cor.insert(0,[inx,iny])
+            iny+=1
+        inx+=1
+        iny=0
 
+
+    return len(range(0, w, sq_size-stride)),len(range(0, h, sq_size-stride)),np.transpose(im,(3,0,1,2)),cor
