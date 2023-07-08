@@ -15,7 +15,7 @@ from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
 import module1 as m1
-from postproc import clustercount,postprocess,clustercount_ray
+from postproc import clustercount,postprocess
 import matplotlib.patches as patches
 from kmeans_pytorch import kmeans
 

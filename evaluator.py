@@ -34,13 +34,13 @@ queryes=["the number of berries", "the raspberries on the ground"]  #"the berry"
 sqsz=[975,1000,1100,1200,900,800,700]
 
 #tresholds for the clusterfinder, all values outputted from the model under this treshold will be ignored.
-tresh=[0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.7]
+tresh=[0.5,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.7]
 
 #max length of the cluster, if the cluster is bigger than this value it will be ignored.
 mxlen=[17]
 
 #strides, if 0 no stride will be used, if set to "autostride", it will set the stride automatically to evenly cover the image with a minimum set by the second value in the list.
-stride=[["autostride",50],[30,30],[40,40],[50,50]]
+stride=[[50,50],["autostride",50],[30,30],[40,40],[50,50]]
 
 #notes to add to the dataframe.
 notes="very big kernel to make the network see the berries as well as possible, added a max length"

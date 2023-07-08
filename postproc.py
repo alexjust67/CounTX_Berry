@@ -49,7 +49,7 @@ def clustercount(density_map, tresh=1,tresh2=0,recl=60,mxlen=17,algo="rec-find")
                         clstr+=1
                     if len(lst)>0:
                         clslis.append(lst)
-    if algo=="ray-find":
+    elif algo=="ray-find":
         for x in range(0,a.shape[0]):                                               #TODO:maybe add a step to the for loop to make it faster
             for y in range(0,a.shape[1]):
                 if a[x,y]>tresh:
