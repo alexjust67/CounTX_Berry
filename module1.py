@@ -227,28 +227,34 @@ def main_counting_network(**kwargs):
     )
     return model
 
-def runmodel(image,text,model,tokenizer):
+def runmodel(image,text,model,device='cpu'):
 
+    # Preprocess the image.
     image = preprocess(image)
+    
     # Place the model in eval mode.
     model.eval()
-    # Tokenize the text.
-    text = tokenizer(text)
+
     # The shot number is 1, since there is only 1 text description.
     shot_num = 1
-    # Infer the count.
+
+    model = model.to(device)
+    
+    # Run the model.
     with torch.no_grad():
-        density_map = model(image.unsqueeze(0), text.unsqueeze(0), shot_num)
+        density_map = model(image.unsqueeze(0).to(device), text.unsqueeze(0).to(device), shot_num)
 
     return density_map
 
-def split_image(image,sq_size=224):     #take the PIL image, rescale it to the closest multiple of TODO:sq_size in height and ind width and divide it into 224x224 squares as an iterable
+def split_image(image,sq_size=224):
+    #get image size and rescale it to the closest multiple of sq_size.
     w,h=image.size
     w2=math.floor(w/sq_size)*sq_size
     h2=math.floor(h/sq_size)*sq_size
     image=image.resize((w2,h2),Image.LANCZOS)
     image=np.array(image)
     first=True
+    #split the image into sq_size x sq_size squares and return them as a numpy array of shape (n,224,224,3)
     for i in range(0, w2, sq_size):
         for j in range(0, h2, sq_size):
             if first:
@@ -258,35 +264,58 @@ def split_image(image,sq_size=224):     #take the PIL image, rescale it to the c
             else:
                 ima=np.expand_dims(image[j:j+sq_size, i:i+sq_size], 3)
                 im=np.append(im,ima,axis=3)
+    
     return w2,h2,np.transpose(im,(3,0,1,2))
 
-def split_image_stride(image,sq_size=224,autostride=False,stride=50):     #take the PIL image, rescale it to the closest multiple of TODO:sq_size in height and ind width and divide it into 224x224 squares as an iterable
+def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended as the overlap between squares.
+
+    #get image size and find the closest multiple of sq_size rounded to the next integer to find the number of squares in each dimension, 
+    #if autostride is enabled the stride will be set to not need to clip the last square to the bottom.
     w,h=image.size
     w2=math.ceil(w/sq_size)
     h2=math.ceil(h/sq_size)
-    if autostride: stride=math.floor(w/w2)
+    
+    if stride[0]=='autostride':                                     #if autostride is enabled the stride will be set to not need to clip the last square to the bottom.
+        stridex=round((math.ceil(w/sq_size)*sq_size-w)/w2)
+        stridey=round((math.ceil(h/sq_size)*sq_size-h)/h2)
+        if stridex<stride[1]: stridex=stride[1]
+        if stridey<stride[1]: stridey=stride[1]
+    else:
+        stridex=stride[0]
+        stridey=stride[1]
+
     image=np.array(image)
     first=True
     cor=[]
     inx=0
     iny=0
-    for i in range(0, w, sq_size-stride):
-        
-        for j in range(0, h, sq_size-stride):
+    for i in range(0, w, sq_size-stridex):
+        for j in range(0, h, sq_size-stridey):
+            
+            #if it's the first square, create the array and append it.
             if first:
                 im=image[i:i+sq_size, j:j+sq_size]
                 im=np.expand_dims(im, 3)
                 first=False
+
+                #create a list of coordinates to map the squares to the original image as indexes [x,y] ex: [[0,0],[0,1],[0,2],[1,0],[1,1]] for a 3x2 image.
                 cor.append([i,j])
+
             else:
+
+                #if the square is too close to the bottom or right edge of the image, clip it to the edge.
                 if j+sq_size>h: j=h-sq_size
                 if i+sq_size>w: i=w-sq_size
+
+                #append the square to the array.
                 ima=np.expand_dims(image[j:j+sq_size, i:i+sq_size], 3)
                 im=np.append(im,ima,axis=3)
-                cor.insert(0,[inx,iny])
+                cor.append([inx,iny])
             iny+=1
+        
         inx+=1
         iny=0
 
 
-    return len(range(0, w, sq_size-stride)),len(range(0, h, sq_size-stride)),np.transpose(im,(3,0,1,2)),cor
+    return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
+    
