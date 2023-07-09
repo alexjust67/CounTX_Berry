@@ -247,6 +247,7 @@ def runmodel(image,text,model,device='cpu'):
     return density_map
 
 def split_image(image,sq_size=224):
+    
     #get image size and rescale it to the closest multiple of sq_size.
     w,h=image.size
     w2=math.floor(w/sq_size)*sq_size
@@ -254,6 +255,7 @@ def split_image(image,sq_size=224):
     image=image.resize((w2,h2),Image.LANCZOS)
     image=np.array(image)
     first=True
+    
     #split the image into sq_size x sq_size squares and return them as a numpy array of shape (n,224,224,3)
     for i in range(0, w2, sq_size):
         for j in range(0, h2, sq_size):
@@ -319,3 +321,81 @@ def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended
 
     return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
     
+def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,device="cpu",sqsz=224,stride=50,no_stride=False,):
+    
+    # Resize and center crop the image into sqsz shapes.
+    if no_stride: 
+        w1,h1,image2=split_image(copy.deepcopy(image),sqsz)
+        deh=int((h1/sqsz)*384)  #actual size of the final image
+        dew=int((w1/sqsz)*384)
+        stridex=stridey=0
+    else:
+        dew,deh=image.size
+        deh=math.floor((deh/sqsz)*384)  #actual size of the final image
+        dew=math.floor((dew/sqsz)*384)
+        stridex,stridey,w1,h1,image2,coord=split_image_stride(copy.deepcopy(image),sqsz,stride=stride)
+    w=0
+    h=0
+    density_map=torch.zeros((deh,dew))    #create a zero tensor with the dimension of the final image that will be no of squares * 384(standard model output)
+    tot=0
+    time1=[]
+    time2=[]
+    dens_time=time.time()
+
+    for i in image2:                       #loop through the images
+        
+        if no_stride: 
+            density_map[h:h+384,w:w+384]=runmodel(i,enc_txt,model,device=device).to(torch.device("cpu"))
+
+        else:                               #if stride is used it will loop through the coordinates of the squares and run the model on them and then put the output in the right place in the final image using a max function between the overlapping squares
+            
+            inx=math.floor(coord[tot][0]*(384-(stridex/sqsz)*384))          #transform the coordinate indexes in the 384 coord space
+            iny=math.floor(coord[tot][1]*(384-(stridey/sqsz)*384))
+            if inx>dew-384: inx=dew-384
+            if iny>deh-384: iny=deh-384
+            denmap=runmodel(i,enc_txt,model,device=device).to(torch.device("cpu"))
+            density_map[iny:iny+384,inx:inx+384]=torch.max(density_map[iny:iny+384,inx:inx+384],denmap)      
+
+        if (h+384!=int((h1/sqsz)*384)and no_stride) or ((not no_stride) and h//384!=coord[len(coord)-1][1]):        #check if it has arrived to the bottom (only used by no_stride)
+            
+            h+=384
+            
+            time2.insert(0,time.time())                             #calculate the time remaining
+            try:
+                time1.insert(0,time2[0]-time2[1])
+                time2.pop(2)
+                try:
+                    time2.pop(3)
+                except:
+                    pass
+            except:
+                pass
+            try:
+                avgperpoint=sum(time1[0:10])/len(time1[0:10])
+            except:
+                avgperpoint=0
+            
+            if no_stride:                                            #print the progress
+                print(h//384," :  "+str(deh//384)+"    ",w//384," :  "+str(dew//384)+"    ",(tot)," : ",image2.shape[0],"  ",str(round((tot/image2.shape[0])*100,2))+"%"+ "    "+"Time remaining: ",round(avgperpoint*(image2.shape[0]-tot),0),"s"+"   ",text_add,"      ",end="\r")
+            else:
+                print(h//384," : ",coord[len(coord)-1][1],"    ",w//384," : ",coord[len(coord)-1][0],"    ",(tot)," : ",image2.shape[0],"  ",str(round((tot/image2.shape[0])*100,2))+"%"+ "    "+"Time remaining: ",round(avgperpoint*(image2.shape[0]-tot),0),"s"+"   ",text_add,"      ",end="\r")
+
+            tot+=1
+        
+        else:
+            time2.insert(0,time.time())
+            tot+=1
+            h=0
+            w=w+384
+    
+    if iterations==0:    #if no noise is added calculate the clusters and the predicted count
+        
+        print("Done calculating density map in:",round(time.time()-dens_time,2),text_add,"                                       ")
+
+        if dm_save: np.save("./img/results/density_map.npy",density_map.numpy())        #save the density map if needed
+
+    else:
+        
+        print(f"Done calculating density map no. {i1} of {iterations} in:",round(time.time()-dens_time,2),text_add,"                                       ")
+    
+    return density_map,dew,deh,stridex,stridey

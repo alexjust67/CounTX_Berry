@@ -4,6 +4,7 @@ import pandas as pd
 import torch
 import module1 as m1
 import open_clip
+from PIL import Image
 
 dir_path='./img/datas'
 iterat=1
@@ -17,21 +18,21 @@ model.load_state_dict(checkpoint["model"], strict=False)                    #loa
 dirfiles=len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, entry))])    #count the number of files in the directory.
 
 #check if data.cvs exist and if it does throw an error.
-if os.path.isfile('./cvs_data/data.csv'):
-    raise Exception("WARNING: ./cvs_data/data.csv already exists, please delete it before running the program.")
+#if os.path.isfile('./cvs_data/data.csv'):
+#    raise Exception("WARNING: ./cvs_data/data.csv already exists, please delete it before running the program.")
 
 #prepare the dataframe.
-d = {'img': [], 'exp_val': [], 'mod_pred': [], 'clus_pred': [], 'max rec': [], 'treshold': [], 'kern_size': [], 'text': [], 'model-error': [], 'clus-error': [],'Notes': [],'delta_bacche_abs':[],'delta_bacche':[],'stridex':[],'stridey':[]}
+d = {'img': [], 'exp_val': [], 'clus_pred': [], 'max rec': [], 'treshold': [], 'kern_size': [], 'text': [], 'clus-error': [],'Notes': [],'delta_bacche_abs':[],'delta_bacche':[],'stridex':[],'stridey':[]}
 df = pd.DataFrame(data=d)
 df_roll=pd.DataFrame(data=d)
 
 #prepare the parameters.
 
 #queryes to feed the model.
-queryes=["the number of berries", "the raspberries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
+queryes=[["the number of berries", "the raspberries on the ground","the berry", "the berries on the ground","the red berries"]]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[975,1000,1100,1200,900,800,700]
+sqsz=[975]
 
 #tresholds for the clusterfinder, all values outputted from the model under this treshold will be ignored.
 tresh=[0.5,0.2,0.25,0.3,0.35,0.4,0.45,0.5,0.55,0.6,0.7]
@@ -42,13 +43,28 @@ mxlen=[17]
 #strides, if 0 no stride will be used, if set to "autostride", it will set the stride automatically to evenly cover the image with a minimum set by the second value in the list.
 stride=[[50,50],["autostride",50],[30,30],[40,40],[50,50]]
 
+#NOISE SETTINGS
+#number of noise iterations, this is the number of times the image will be fed to the model with a random noise added to it. (0=no noise)
+iterations=5
+#level of noise, if noise is set to equal this value will be by how much the map will be subtracted
+noise_lvl=60
+#tipe of noise: "speckle"   "salt and pepper"   "poisson"   "gaussian"
+noise_type="None"
+#dropoff of the cluster ray
+dropoff=5
+#radius of the attenuation
+rad=50
+#coefficient to the density map when added to the noise map
+density_map_coeff=0.3
+
 #notes to add to the dataframe.
-notes="very big kernel to make the network see the berries as well as possible, added a max length"
+notes=""
 
 #visualization parameters.
-showimage=False
-datasave=False
-rolling_daatasave=False
+showimage=True
+density_datasave=False
+rolling_datasave=True
+shownoise=False
 
 #loop through the parameters.
 for strid in stride:
@@ -63,16 +79,9 @@ for strid in stride:
             for sqsz1 in sqsz:
                 for text in queryes:
                     
-                    if rolling_daatasave:
+                    if rolling_datasave:
                         df_roll=pd.DataFrame(data=d)
                     
-                    # Define preprocessing.
-                    tokenizer = open_clip.get_tokenizer("ViT-B-16")
-                    # Tokenize the text.
-                    text1=tokenizer(text)
-
-                    
-
                     for file in os.listdir(dir_path):
                         
                         filename = os.fsdecode(file)
@@ -80,19 +89,23 @@ for strid in stride:
                         #get the ground truth value.
                         ground_truth=filename[(filename.find("pred")+5):(filename.find("2000")-1)]
 
-                        stridex,stridey,predc,clst,tre,recus,sqz=mainf(
+                        # Load and process the image.
+                        image = Image.open(f"./img/datas/{filename}").convert("RGB")
+                        image.load()
+
+                        stridex,stridey,clst,tre,recus,sqz=mainf(
                         
                         model,                                                                                              #model to load.
                         
                         image_file_name = f"./img/datas/{filename}",                                                        #image file name.
                         
-                        enc_txt=text1,                                                                                      #encoded text prompt.
+                        image=image,                                                                                        #image.
 
                         text=text,                                                                                          #text prompt.
                         
                         sqsz=sqsz1,                                                                                         #size of image division kernel.
                         
-                        dm_save=datasave,                                                                                   #save density map as npy.
+                        dm_save=density_datasave,                                                                           #save density map as npy.
                         
                         showimage=showimage,                                                                                #show also the image.
                         
@@ -112,26 +125,40 @@ for strid in stride:
 
                         device=device,                                                                                      #device to use.
                         
-                        clusteralg="rec-find"                                                                               #rec-find or ray-find(in development).
+                        clusteralg="rec-find",                                                                              #rec-find or ray-find(in development).
+                        
+                        iterations=iterations,                                                                              #number of noise iterations.
+                        
+                        noise_lvl=noise_lvl,                                                                                        #noise level
+
+                        noise_type=noise_type,
+
+                        dropoff=dropoff,
+
+                        density_map_coeff=density_map_coeff,
+
+                        shownoise=shownoise,
+
+                        rad=rad
                         
                         )
                         
-                        d2 = {'img': [filename], 'exp_val': [ground_truth], 'mod_pred': [predc], 'clus_pred': [len(clst)], 'max rec': [recus], 'treshold': [tre], 'kern_size': [sqz], 'text': [text], 'model-error': [abs(int(ground_truth)-predc)/int(ground_truth)], 'clus-error': [abs(int(ground_truth)-len(clst))/int(ground_truth)],'Notes': [notes],'delta_bacche_abs':[abs(int(ground_truth)-len(clst))],'delta_bacche':[int(ground_truth)-len(clst)],'stridex':[stridex],'stridey':[stridey]}
+                        d2 = {'img': [filename], 'exp_val': [ground_truth], 'clus_pred': [len(clst)], 'max rec': [recus], 'treshold': [tre], 'kern_size': [sqz], 'text': [str(text)], 'clus-error': [abs(int(ground_truth)-len(clst))/int(ground_truth)],'Notes': [notes],'delta_bacche_abs':[abs(int(ground_truth)-len(clst))],'delta_bacche':[int(ground_truth)-len(clst)],'stridex':[stridex],'stridey':[stridey]}
                         
                         #append the data to the dataframe.
                         df2=pd.DataFrame(data=d2)
                         df=df.append(df2)
                         df.to_csv('./cvs_data/data.csv')
                         
-                        if rolling_daatasave:
+                        if rolling_datasave:
                             #append the data to the rolling dataframe.
                             df_roll=df_roll.append(df2)
 
                         iterat+=1
                     
                     #if rolling data save is true save the rolling dataframe.
-                    if rolling_daatasave:    
-                        d3 = {'img': ["Error mean"], 'exp_val': [None], 'mod_pred': [None], 'clus_pred': [None], 'max rec': [None], 'treshold': [None], 'kern_size': [None], 'text': [text], 'model-error': [df_roll.iloc[:,8].mean()], 'clus-error': [df_roll.iloc[:,9].mean()],'Notes': [None],'delta_bacche_abs':[df_roll.iloc[:,11].mean()],'delta_bacche':[int(ground_truth)-len(clst)],'stridex':[stridex],'stridey':[stridey]}
+                    if rolling_datasave:    
+                        d3 = {'img': ["Error mean"], 'exp_val': [None], 'clus_pred': [None], 'max rec': [None], 'treshold': [None], 'kern_size': [None], 'text': [str(text)], 'clus-error': [df_roll.iloc[:,9].mean()],'Notes': [None],'delta_bacche_abs':[df_roll.iloc[:,11].mean()],'delta_bacche':[int(ground_truth)-len(clst)],'stridex':[stridex],'stridey':[stridey]}
                         df3=pd.DataFrame(data=d3)
                         with open(f'./rolling_data/out_roll{(iterat-1)/5}.txt', 'w') as f:
                             f.write(df_roll.describe().to_string())

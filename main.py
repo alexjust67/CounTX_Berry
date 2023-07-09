@@ -15,16 +15,17 @@ from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
 import module1 as m1
-from postproc import clustercount,postprocess
+from postproc import clustercount,postprocess,showimagefun
 import matplotlib.patches as patches
 from kmeans_pytorch import kmeans
-
+from noise import noise_map_creator
+import copy
 
 def mainf(
         model,
         image_file_name = "./img/bacchetree.png",
+        image= None,
         text = "the number of berries",
-        enc_txt = None,
         sqsz=224,
         dm_save=True,
         showimage=True,
@@ -37,116 +38,93 @@ def mainf(
         stride=[50,50],
         device="cpu",
         clusteralg="rec-find",
+        iterations=0,
+        noise_lvl=1,
+        noise_type="gauss",
+        dropoff=30,
+        density_map_coeff=2,
+        shownoise=False,
+        rad=60,
         ):
-
     
-    # Load and process the image.
-    image = Image.open(image_file_name).convert("RGB")
-    image.load()
-
-    # Resize and center crop the image into sqsz shapes.
-    if no_stride: 
-        w1,h1,image=m1.split_image(image,sqsz)
-        deh=int((h1/sqsz)*384)  #actual size of the final image
-        dew=int((w1/sqsz)*384)
-    else:
-        dew,deh=image.size
-        deh=math.floor((deh/sqsz)*384)  #actual size of the final image
-        dew=math.floor((dew/sqsz)*384)
-        stridex,stridey,w1,h1,image,coord=m1.split_image_stride(image,sqsz,stride=stride)
+    for i1 in range(iterations):
+        # Define preprocessing.
+        tokenizer = open_clip.get_tokenizer("ViT-B-16")
+        # Tokenize the text.
+        enc_txt=tokenizer(text[i1])
         
-    
-    w=0
-    h=0
-    density_map=torch.zeros((deh,dew))    #create a zero tensor with the dimension of the final image that will be no of squares * 384(standard model output)
-    tot=0
-    time1=[]
-    time2=[]
-    dens_time=time.time()
-
-    for i in image:                       #loop through the images
+        density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,no_stride=no_stride)
         
-        if no_stride: 
-            density_map[h:h+384,w:w+384]=m1.runmodel(i,enc_txt,model,device=device).to(torch.device("cpu"))
-
-        else:                               #if stride is used it will loop through the coordinates of the squares and run the model on them and then put the output in the right place in the final image using a max function between the overlapping squares
-             
-            inx=math.floor(coord[tot][0]*(384-(stridex/sqsz)*384))          #transform the coordinate indexes in the 384 coord space
-            iny=math.floor(coord[tot][1]*(384-(stridey/sqsz)*384))
-            if inx>dew-384: inx=dew-384
-            if iny>deh-384: iny=deh-384
-            denmap=m1.runmodel(i,enc_txt,model,device=device).to(torch.device("cpu"))
-            density_map[iny:iny+384,inx:inx+384]=torch.max(density_map[iny:iny+384,inx:inx+384],denmap)      
-
-        if (h+384!=int((h1/sqsz)*384)and no_stride) or ((not no_stride) and h//384!=coord[len(coord)-1][1]):        #check if it has arrived to the bottom (only used by no_stride)
+        print("Calculating clusters...   ")
             
-            h+=384
+        strt=time.time()
             
-            time2.insert(0,time.time())                             #calculate the time remaining
+        #calculate the clusters using the chosen algorithm
+        iclsc,clslst=clustercount(density_map.numpy(),tresh=tresh,tresh2=tresh,recl=recl,mxlen=mxlen,algo=clusteralg)
+
+        print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
+
+        if iterations!=0: 
+            print("Starting map modification...")
+                
+            if noise_type!="None":    
+                noisetime=time.time()
+                
+                #calculate the noise map
+                noisemap=noise_map_creator([deh,dew],noise_lvl,noise_type,density_map,clslst,rad,dropoff=dropoff,density_map_coeff=density_map_coeff,shownoise=shownoise)
+
+                image=np.array(image)
+
+                nos=Image.fromarray(noisemap).convert("L")
+                nos=nos.resize((image.shape[1],image.shape[0]))
+                noisemap=np.array(nos)
+                #convert to int array
+                noisemap=noisemap.astype(np.float64)
+                if noise_type=="equal": 
+                    noisemap/=np.full(noisemap.shape,255)
+                    #positive incentive
+                    noisemap+=np.full(noisemap.shape,0.999)
+                #add two new axis to the noise map
+                noisemap = np.repeat(noisemap[:, :, np.newaxis], 3, axis=2)
+                #add the noise map to the image
+                image=(image.astype(np.float64)/noisemap).astype(np.uint8)
+
+                if (False):
+                    plt.imshow(image)
+                    #plt.imshow(noisemap)
+                    plt.show()
+                image=Image.fromarray(image.astype(np.uint8))
+            
+
+
+            np.save(f"./img/results/density_map{i1}.npy",density_map.numpy())
             try:
-                time1.insert(0,time2[0]-time2[1])
-                time2.pop(2)
-                try:
-                    time2.pop(3)
-                except:
-                    pass
+                print("Done map modification. Time: ",round(time.time()-noisetime,2),"s")
             except:
-                pass
-            try:
-                avgperpoint=sum(time1[0:10])/len(time1[0:10])
-            except:
-                avgperpoint=0
+                continue
+
+
+
+        #show the image with the clusters and the density map if needed
+        if showimage and iterations==0: 
+            showimagefun(density_map.numpy(),image_file_name,clslst,deh,dew,ground_truth,tresh=tresh)
             
-            if no_stride:                                            #print the progress
-                print(h//384," :  "+str(deh//384)+"    ",w//384," :  "+str(dew//384)+"    ",(tot)," : ",image.shape[0],"  ",str(round((tot/image.shape[0])*100,2))+"%"+ "    "+"Time remaining: ",round(avgperpoint*(image.shape[0]-tot),0),"s"+"   ",text_add,"      ",end="\r")
-            else:
-                print(h//384," : ",coord[len(coord)-1][1],"    ",w//384," : ",coord[len(coord)-1][0],"    ",(tot)," : ",image.shape[0],"  ",str(round((tot/image.shape[0])*100,2))+"%"+ "    "+"Time remaining: ",round(avgperpoint*(image.shape[0]-tot),0),"s"+"   ",text_add,"      ",end="\r")
+    
+    if iterations!=0:
+        #create a np array with the density maps of all the noise iterations from ./img/results/density_map{i}.npy
+        denmaps=np.zeros((0,deh,dew))
+        #calculate the average of all the density maps
 
-            tot+=1
+        for i in range(iterations):
+            denmaps=np.append(denmaps,np.expand_dims(np.load(f"./img/results/density_map{i}.npy"),0),axis=0)
         
-        else:
-            time2.insert(0,time.time())
-            tot+=1
-            h=0
-            w=w+384
-    
-    print("Done calculating density map in:",round(time.time()-dens_time,2),text_add,"                                       ")
-    
-    mod_pred_cnt = torch.sum(density_map / 60).item()       #predicted count by the integration of the density map
+        #denmaps=np.mean(denmaps,axis=0)
+        denmaps=np.sum(denmaps,axis=0)
+        #calculate the clusters using the chosen algorithm
+        iclsc,clslst=clustercount(denmaps,tresh=tresh+iterations/5,tresh2=tresh,recl=recl,mxlen=mxlen,algo=clusteralg)
+        if showimage:
+            showimagefun(denmaps,image_file_name,clslst,deh,dew,ground_truth,tresh=tresh+iterations/5,)
 
-    if dm_save: np.save("./img/results/density_map.npy",density_map.numpy())        #save the density map if needed
+    return stridex,stridey, clslst, tresh, recl, sqsz
 
-    print("calculating clusters...   ")
-    
-    strt=time.time()
-
-    #calculate the clusters using the chosen algorithm
-    iclsc,clslst=clustercount(density_map.numpy(),tresh=tresh,tresh2=tresh,recl=recl,mxlen=mxlen,algo=clusteralg)
-    
-    print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
-    
-    #show the image with the clusters and the density map if needed
-    if showimage: 
-        
-        a=postprocess(density_map.numpy(),tresh=tresh)
-
-        img=mpimg.imread(image_file_name)
-        fig,ax = plt.subplots(1,3,sharex=True,sharey=True)
-        ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
-        ax[1].imshow(img,extent=(0,dew,deh,0))
-        ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
-        ax[2].imshow(density_map.numpy(), cmap='jet', interpolation='nearest',alpha=1)
-
-        
-        for it in clslst:
-            ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
-
-        plt.title("Pred: " + str(len(clslst)) + "G-T: "+ground_truth)
-        image_file_name=image_file_name[(image_file_name.rfind("/")+1):]
-
-        plt.savefig(f"./img/results/{image_file_name}",dpi=1500)
-        plt.show()
-        plt.close('all')
-    
-    return stridex,stridey,mod_pred_cnt, clslst, tresh, recl, sqsz
 
