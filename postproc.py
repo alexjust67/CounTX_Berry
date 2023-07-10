@@ -133,7 +133,7 @@ def iscluster_lft(density_map,x,y,tresh,lispt):
     else:
         return density_map,False,False,[]
 
-def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,tresh=0.5):
+def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,tresh=0.5,textadd=""):
    
     a=postprocess(density_map,tresh=tresh)
 
@@ -141,13 +141,17 @@ def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,tresh=0
     fig,ax = plt.subplots(1,3,sharex=True,sharey=True)
     ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
     ax[1].imshow(img,extent=(0,dew,deh,0))
-    ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
-    ax[2].imshow(density_map, cmap='jet', interpolation='nearest',alpha=1)
     
+    #add a colorbar to the second and third axes.
+    im=ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
+    plt.colorbar(im,ax=ax[1],fraction=0.036, pad=0.04)
+    im=ax[2].imshow(density_map, cmap='jet', interpolation='nearest',alpha=0.85)
+    plt.colorbar(im,ax=ax[2],fraction=0.036, pad=0.04)
+
     for it in clslst:
         ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
 
-    plt.title("Pred: " + str(len(clslst)) + "G-T: "+ground_truth)
+    plt.title("Pred: " + str(len(clslst)) + "G-T: "+ground_truth+" "+str(textadd))
     file_name=image_file_name[(image_file_name.rfind("/")+1):]
 
     plt.savefig(f"./img/results/{file_name}",dpi=1500)

@@ -227,11 +227,14 @@ def main_counting_network(**kwargs):
     )
     return model
 
-def runmodel(image,text,model,device='cpu'):
+def runmodel(image,text,model,device='cpu',showkern=False):
 
     # Preprocess the image.
     image = preprocess(image)
-    
+    #if showkern is true it will show the image.
+    if showkern:
+        plt.imshow(image.permute(1,2,0))
+        plt.show()
     # Place the model in eval mode.
     model.eval()
 
@@ -321,7 +324,7 @@ def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended
 
     return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
     
-def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,device="cpu",sqsz=224,stride=50,no_stride=False,):
+def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,device="cpu",sqsz=224,stride=50,no_stride=False,showkern=False):
     
     # Resize and center crop the image into sqsz shapes.
     if no_stride: 
@@ -334,6 +337,9 @@ def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,devic
         deh=math.floor((deh/sqsz)*384)  #actual size of the final image
         dew=math.floor((dew/sqsz)*384)
         stridex,stridey,w1,h1,image2,coord=split_image_stride(copy.deepcopy(image),sqsz,stride=stride)
+    
+    
+    
     w=0
     h=0
     density_map=torch.zeros((deh,dew))    #create a zero tensor with the dimension of the final image that will be no of squares * 384(standard model output)
@@ -345,7 +351,7 @@ def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,devic
     for i in image2:                       #loop through the images
         
         if no_stride: 
-            density_map[h:h+384,w:w+384]=runmodel(i,enc_txt,model,device=device).to(torch.device("cpu"))
+            density_map[h:h+384,w:w+384]=runmodel(i,enc_txt,model,device=device,showkern=showkern).to(torch.device("cpu"))
 
         else:                               #if stride is used it will loop through the coordinates of the squares and run the model on them and then put the output in the right place in the final image using a max function between the overlapping squares
             
@@ -353,7 +359,7 @@ def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,devic
             iny=math.floor(coord[tot][1]*(384-(stridey/sqsz)*384))
             if inx>dew-384: inx=dew-384
             if iny>deh-384: iny=deh-384
-            denmap=runmodel(i,enc_txt,model,device=device).to(torch.device("cpu"))
+            denmap=runmodel(i,enc_txt,model,device=device,showkern=showkern).to(torch.device("cpu"))
             density_map[iny:iny+384,inx:inx+384]=torch.max(density_map[iny:iny+384,inx:inx+384],denmap)      
 
         if (h+384!=int((h1/sqsz)*384)and no_stride) or ((not no_stride) and h//384!=coord[len(coord)-1][1]):        #check if it has arrived to the bottom (only used by no_stride)

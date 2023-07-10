@@ -17,7 +17,6 @@ import time
 import module1 as m1
 from postproc import clustercount,postprocess,showimagefun
 import matplotlib.patches as patches
-from kmeans_pytorch import kmeans
 from noise import noise_map_creator
 import copy
 
@@ -29,8 +28,11 @@ def mainf(
         sqsz=224,
         dm_save=True,
         showimage=True,
+        showkern=False,
+        showimage_iter=False,
         recl=60,
         tresh=0.4,
+        final_tresh_coeff=5,
         text_add="",
         ground_truth="",
         mxlen=20,
@@ -45,6 +47,7 @@ def mainf(
         density_map_coeff=2,
         shownoise=False,
         rad=60,
+        clustercount_step=True,
         ):
     
     for i1 in range(iterations):
@@ -53,21 +56,25 @@ def mainf(
         # Tokenize the text.
         enc_txt=tokenizer(text[i1])
         
-        density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,no_stride=no_stride)
+        density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,no_stride=no_stride,showkern=showkern)
         
-        print("Calculating clusters...   ")
+        if clustercount_step: 
             
-        strt=time.time()
-            
-        #calculate the clusters using the chosen algorithm
-        iclsc,clslst=clustercount(density_map.numpy(),tresh=tresh,tresh2=tresh,recl=recl,mxlen=mxlen,algo=clusteralg)
-
-        print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
-
-        if iterations!=0: 
-            print("Starting map modification...")
+            print("Calculating clusters...   ")
                 
-            if noise_type!="None":    
+            strt=time.time()
+                
+            #calculate the clusters using the chosen algorithm
+            iclsc,clslst=clustercount(density_map.numpy(),tresh=tresh,tresh2=tresh,recl=recl,mxlen=mxlen,algo=clusteralg)
+
+            print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
+            #show the image with the clusters and the density map if needed
+            if showimage_iter: 
+                showimagefun(density_map.numpy(),image_file_name,clslst,deh,dew,ground_truth,tresh=tresh,textadd=text[i1])
+  
+            if noise_type!="None" and iterations!=0:    
+                print("Starting map modification...")
+
                 noisetime=time.time()
                 
                 #calculate the noise map
@@ -95,35 +102,39 @@ def mainf(
                     plt.show()
                 image=Image.fromarray(image.astype(np.uint8))
             
-
-
             np.save(f"./img/results/density_map{i1}.npy",density_map.numpy())
+            
             try:
                 print("Done map modification. Time: ",round(time.time()-noisetime,2),"s")
             except:
                 continue
 
-
-
-        #show the image with the clusters and the density map if needed
-        if showimage and iterations==0: 
-            showimagefun(density_map.numpy(),image_file_name,clslst,deh,dew,ground_truth,tresh=tresh)
+        
             
     
-    if iterations!=0:
-        #create a np array with the density maps of all the noise iterations from ./img/results/density_map{i}.npy
-        denmaps=np.zeros((0,deh,dew))
-        #calculate the average of all the density maps
-
+    #create a np array with the density maps of all the noise iterations from ./img/results/density_map{i}.npy
+    denmaps=np.zeros((0,deh,dew))
+    #calculate the average of all the density maps
+    if iterations>1:
         for i in range(iterations):
             denmaps=np.append(denmaps,np.expand_dims(np.load(f"./img/results/density_map{i}.npy"),0),axis=0)
         
         #denmaps=np.mean(denmaps,axis=0)
         denmaps=np.sum(denmaps,axis=0)
-        #calculate the clusters using the chosen algorithm
-        iclsc,clslst=clustercount(denmaps,tresh=tresh+iterations/5,tresh2=tresh,recl=recl,mxlen=mxlen,algo=clusteralg)
-        if showimage:
-            showimagefun(denmaps,image_file_name,clslst,deh,dew,ground_truth,tresh=tresh+iterations/5,)
+    else:
+        denmaps=density_map
+    
+    print("Calculating clusters...   ")
+            
+    strt=time.time()
+    
+    #calculate the clusters using the chosen algorithm
+    iclsc,clslst=clustercount(denmaps,tresh=final_tresh_coeff,tresh2=tresh,recl=recl,mxlen=mxlen,algo=clusteralg)
+    
+    print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
+    
+    if showimage:
+        showimagefun(denmaps,image_file_name,clslst,deh,dew,ground_truth,tresh=tresh+iterations/5,)
 
     return stridex,stridey, clslst, tresh, recl, sqsz
 
