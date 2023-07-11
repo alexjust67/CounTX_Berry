@@ -2,15 +2,18 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
 import matplotlib.patches as patches
+import torch
+from scipy import ndimage
 
 #apply a treshold to the density map.
 def postprocess(density_map,tresh):
+    density_map = density_map/torch.max(density_map)
     result = (density_map >= tresh) * density_map
     return result
 
 #find the clusters in the density map with recursion.
 def iscluster(density_map,x,y,rec_level,tresh,lispt,recl):
-    
+
     #if the recursion level is too high, set the reclim to true to ensure that this won't be counted as a cluster.
     if rec_level>recl:  
         reclim=True
@@ -133,23 +136,29 @@ def iscluster_lft(density_map,x,y,tresh,lispt):
     else:
         return density_map,False,False,[]
 
-def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout=True,tresh=0.5,textadd=""):
+def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout=True,tresh=0.5,textadd="",clslstipe=""):
    
     a=postprocess(density_map,tresh=tresh)
 
     img=mpimg.imread(image_file_name)
-    fig,ax = plt.subplots(1,3,sharex=True,sharey=True)
+    fig,ax = plt.subplots(1,2,sharex=True,sharey=True)
     ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
-    ax[1].imshow(img,extent=(0,dew,deh,0))
     
-    #add a colorbar to the second and third axes.
-    im=ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
-    plt.colorbar(im,ax=ax[1],fraction=0.036, pad=0.04)
-    im=ax[2].imshow(density_map, cmap='jet', interpolation='nearest',alpha=0.85)
+    
+    # #add a colorbar to the second and third axes.
+    # if clslstipe=="map":
+    #     continue
+    # else:
+    #     im=ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
+    #     ax[1].imshow(img,extent=(0,dew,deh,0))
+    #     plt.colorbar(im,ax=ax[1],fraction=0.036, pad=0.04)
+    
+    im=ax[1].imshow(density_map, cmap='jet', interpolation='nearest',alpha=0.85)
     plt.colorbar(im,ax=ax[2],fraction=0.036, pad=0.04)
-
-    for it in clslst:
-        ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
+    
+    # if clslstipe=="map":
+    #     for it in clslst:
+    #         ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
 
     plt.title("Pred: " + str(len(clslst)) + "G-T: "+ground_truth+" "+str(textadd))
     file_name=image_file_name[(image_file_name.rfind("/")+1):]
@@ -157,3 +166,10 @@ def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout
     plt.savefig(f"./img/results/{file_name}",dpi=1500)
     if showout: plt.show()
     plt.close('all')
+
+
+def clustercount2(density_map, treshold, mxlen=17):
+    density_map = postprocess(density_map, treshold)
+    density_map = ndimage.measurements.label(density_map)[0]
+    maxval = np.max(density_map)
+    return maxval,density_map

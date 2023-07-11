@@ -324,7 +324,7 @@ def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended
 
     return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
     
-def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,device="cpu",sqsz=224,stride=50,no_stride=False,showkern=False):
+def density_map_creator(image,model,text_add,enc_txt,dm_save,device="cpu",sqsz=224,stride=50,no_stride=False,showkern=False):
     
     # Resize and center crop the image into sqsz shapes.
     if no_stride: 
@@ -394,14 +394,8 @@ def density_map_creator(image,model,text_add,i1,iterations,enc_txt,dm_save,devic
             h=0
             w=w+384
     
-    if iterations==0:    #if no noise is added calculate the clusters and the predicted count
-        
-        print("Done calculating density map in:",round(time.time()-dens_time,2),text_add,"                                       ")
+    print("Done calculating density map in:",round(time.time()-dens_time,2),text_add,"                                       ")
 
-        if dm_save: np.save("./img/results/density_map.npy",density_map.numpy())        #save the density map if needed
-
-    else:
-        
-        print(f"Done calculating density map no. {i1} of {iterations} in:",round(time.time()-dens_time,2),text_add,"                                       ")
+    if dm_save: np.save("./img/results/density_map.npy",density_map.numpy())        #save the density map if needed
     
     return density_map,dew,deh,stridex,stridey
