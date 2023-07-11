@@ -9,3 +9,5 @@ pad.py
 rolling_data
 img/results
 cvs_data
+img/datas/images
+.gitignore
