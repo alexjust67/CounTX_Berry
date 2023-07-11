@@ -66,7 +66,7 @@ scale=1
 notes=""
 
 #visualization parameters.
-showimage=True
+showimage=False
 density_datasave=False
 rolling_datasave=True
 shownoise=False

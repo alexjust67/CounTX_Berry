@@ -133,8 +133,10 @@ def mainf(
     
     print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
     
-    if showimage:
-        showimagefun(denmaps,image_file_name,clslst,deh,dew,ground_truth,tresh=tresh+iterations/5,)
+    if showimage or (len(clslst)-int(ground_truth))>30:
+        if (len(clslst)-int(ground_truth))>30:                 #PLACEHOLDER
+            showout=False
+        showimagefun(denmaps,image_file_name,clslst,deh,dew,ground_truth,showout=showout,tresh=tresh+iterations/5,)
 
     return stridex,stridey, clslst, tresh, recl, sqsz
 

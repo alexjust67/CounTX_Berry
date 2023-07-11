@@ -133,7 +133,7 @@ def iscluster_lft(density_map,x,y,tresh,lispt):
     else:
         return density_map,False,False,[]
 
-def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,tresh=0.5,textadd=""):
+def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout=True,tresh=0.5,textadd=""):
    
     a=postprocess(density_map,tresh=tresh)
 
@@ -155,5 +155,5 @@ def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,tresh=0
     file_name=image_file_name[(image_file_name.rfind("/")+1):]
 
     plt.savefig(f"./img/results/{file_name}",dpi=1500)
-    plt.show()
+    if showout: plt.show()
     plt.close('all')
