@@ -102,7 +102,7 @@ def mainf(
                     plt.show()
                 image=Image.fromarray(image.astype(np.uint8))
             
-            np.save(f"./img/results/density_map{i1}.npy",density_map.numpy())
+            if dm_save or iterations>1: np.save(f"./img/results/density_map{i1}.npy",density_map.numpy())
             
             try:
                 print("Done map modification. Time: ",round(time.time()-noisetime,2),"s")
