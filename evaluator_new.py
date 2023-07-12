@@ -6,7 +6,7 @@ import module1 as m1
 import open_clip
 from PIL import Image
 
-dir_path='./img/datas/images/images-sparse/'                                #path to the directory containing the images.
+dir_path='./img/datas/images/'                                #path to the directory containing the images.
 
 # Load model.
 device= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")      #use gpu if available.
@@ -23,7 +23,7 @@ dirfiles=len([entry for entry in os.listdir(dir_path) if os.path.isfile(os.path.
 #prepare the dataframe.
 d = {'img': [], 'exp_val': [], 'clus_pred': [], 'treshold': [], 'kern_size': [], 'text': [], 'clus-error': [],'Notes': [],'delta_bacche_abs':[],'delta_bacche':[],'stridex':[],'stridey':[]}
 df = pd.DataFrame(data=d)
-
+df.to_csv('./cvs_data/data.csv')
 #prepare the parameters.
 
 #queryes to feed the model.
@@ -116,14 +116,14 @@ for strid in stride:
                             #append the data to the dataframe.
                             df2=pd.DataFrame(data=d2)
                             df=df.append(df2)
-                            df.to_csv('./cvs_data/data.csv')
                             
                             if rolling_datasave:
                                 #append the data to the rolling dataframe.
                                 df_roll=df_roll.append(df2)
                             ind+=1
                         iterat+=1
-                    
+                        df.to_csv('./cvs_data/data.csv',mode='a', header=False)
+                        df = df[0:0]
                     #if rolling data save is true save the rolling dataframe.
                     if rolling_datasave:    
                         d3 = {'img': ["Error mean"], 'exp_val': [None], 'clus_pred': [None], 'treshold': [None], 'kern_size': [None], 'text': [str(text)], 'clus-error': [df_roll.iloc[:,7].mean()],'Notes': [None],'delta_bacche_abs':[df_roll.iloc[:,9].mean()],'delta_bacche':[None],'stridex':[stridex],'stridey':[stridey]}
