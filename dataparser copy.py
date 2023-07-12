@@ -2,8 +2,11 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 toghether=True
+alltoghether=False
+best=True
+
 #import the dataframe
-df=pd.read_csv("./cvs_data/data.csv")
+df=pd.read_csv("D:\Vstudio\Vscode\CounTX_Berry\CounTX_Berry\cvs_data\data.csv")
 df = df.sort_values(['kern_size', 'treshold','exp_val'], ascending=[True, True,True])#
 #iterate over the dataframe and divide it by the column "expected value"
 actual_val=[[[[]]]]#[df['exp_val'][0]
@@ -19,9 +22,10 @@ kernel=0
 kernlist=[]
 treshold=0
 treshlist=[]
+
 for index, row in df.iterrows():
     if start==False:
-        actual_val[0][len(actual_val)-1].append(row['exp_val'])
+        actual_val[0][len(actual_val)-1].append([row['exp_val']])
         prev_kern=row['kern_size']
         prev_row=row['exp_val']
         prev_tresh=row['treshold']
@@ -116,7 +120,7 @@ if not(toghether):
             figure.set_size_inches(12, 8)
             plt.savefig('./cvs_data/plot'+str(kernlist[b][x])+str(treshlist[b])+'.png', dpi=1000)
             plt.show()
-else:
+elif alltoghether:
     for b in range(kernel+1):
         fig, axs = plt.subplots(2, 2)
         for x in range(treshold+1):
@@ -137,4 +141,52 @@ else:
         figure.set_size_inches(12, 8)
         plt.savefig('./cvs_data/plot'+str("all")+str(treshlist[b])+'.png', dpi=1000)
         plt.show()
+elif best:
+    Clus_pred_mean_best=[]
+    first=True
+    ind=0
+    tot=0
+    for l in actual_val[0]:
+        tot+=sum(l)
+    for x in Clus_pred_mean:
+        Clus_pred_mean_best.append([])
+        for y in x:
+            if first:
+                Clus_pred_mean_best[ind].append(y)
+                first=False
+            else:
+                err=sum(y)-tot
+                if err<0:
+                    err=-err
+                for n in range(len(Clus_pred_mean_best[ind])):
+                    err2=sum(Clus_pred_mean_best[ind][n])-tot
+                    if err2<0:
+                        err2=-err2
+                    if err<err2:
+                        Clus_pred_mean_best[ind].insert(n,y)
+                        break
+                    elif n==len(Clus_pred_mean_best[ind])-1:
+                        Clus_pred_mean_best[ind].append(y)
+                        break
+        ind+=1
 
+    for b in range(kernel+1):
+        fig, axs = plt.subplots(2, 2)
+        for x in range(10):
+            axs[0, 0].plot(Clus_pred_mean_best[b][x])#,label='Sample Label Red'
+        axs[0, 0].plot(actual_val[b][x], 'tab:blue')
+        axs[0, 0].set_title('Clus_pred_mean')
+        # for x in range(treshold+1):
+        #     axs[0, 1].plot(Clus_error_mean[b][x])
+        # axs[0, 1].set_title('Clus_error_mean')
+        # for x in range(treshold+1):
+        #     axs[1, 0].plot(delta_bacche_mean[b][x])
+        # axs[1, 0].set_title('delta_bacche_mean')
+        # for x in range(treshold+1):
+        #     axs[1, 1].plot(delta_bacche_abs_mean[b][x])
+        # axs[1, 1].set_title('delta_bacche_abs_mean')
+        fig.suptitle('Kernel size: '+str(kernlist[b])+"treshold: "+"all")
+        figure = plt.gcf()  # get current figure
+        figure.set_size_inches(12, 8)
+        plt.savefig('./cvs_data/plot'+str("all")+str(treshlist[b])+'.png', dpi=1000)
+        plt.show()
