@@ -27,7 +27,7 @@ df.to_csv('./cvs_data/data.csv')
 #prepare the parameters.
 
 #queryes to feed the model.
-queryes=["the number of cars"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
+queryes=["the number of berries"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
 sqsz=[600,250,350]

@@ -6,7 +6,11 @@ alltoghether=False
 best=True
 
 #import the dataframe
-df=pd.read_csv("D:\Vstudio\Vscode\CounTX_Berry\CounTX_Berry\cvs_data\data.csv")
+print("importing the dataframe")
+df=pd.read_csv("./cvs_data/data175-200-400-450.csv")
+df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
+df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
+df=df.append(pd.read_csv("./cvs_data/456.csv"))
 df = df.sort_values(['kern_size', 'treshold','exp_val'], ascending=[True, True,True])#
 #iterate over the dataframe and divide it by the column "expected value"
 actual_val=[[[[]]]]#[df['exp_val'][0]
@@ -22,7 +26,7 @@ kernel=0
 kernlist=[]
 treshold=0
 treshlist=[]
-
+print("dividing the dataframe")
 for index, row in df.iterrows():
     if start==False:
         actual_val[0][len(actual_val)-1].append([row['exp_val']])
@@ -58,9 +62,9 @@ for index, row in df.iterrows():
             Clus_error[kernel][treshold].append([row['clus-error']])
             delta_bacche[kernel][treshold].append([row['delta_bacche']])
             delta_bacche_abs[kernel][treshold].append([row['delta_bacche_abs']])
-            prev_kern=row['kern_size']
             prev_row=row['exp_val']
-            kernlist.append(row['kern_size'])
+            prev_tresh=row['treshold']
+            treshlist.append(row['treshold'])
     else:
         kernel+=1
         treshold=0
@@ -79,7 +83,8 @@ for index, row in df.iterrows():
         kernlist.append(row['kern_size'])
         prev_tresh=row['treshold']
         treshlist.append(row['treshold'])
-
+        
+print("dataframe divided, calculating means")
 #calculate the mean of the lists.
 Clus_pred_mean=[]
 Clus_error_mean=[]
@@ -100,7 +105,7 @@ for y in range(kernel+1):
             Clus_error_mean[y][x].append(sum(Clus_error[y][x][i])/len(Clus_error[y][x][i]))
             delta_bacche_mean[y][x].append(sum(delta_bacche[y][x][i])/len(delta_bacche[y][x][i]))
             delta_bacche_abs_mean[y][x].append(sum(delta_bacche_abs[y][x][i])/len(delta_bacche_abs[y][x][i]))
-
+print("means calculated, plotting")
 if not(toghether):
     for b in range(kernel+1):
         for x in range(treshold+1):
@@ -146,13 +151,22 @@ elif best:
     first=True
     ind=0
     tot=0
-    for l in actual_val[0]:
-        tot+=sum(l)
+    for l in actual_val[0][0]:
+        try:
+            tot+=sum(l)
+        except:
+            continue
+    inde=0
+    indelist=[]
     for x in Clus_pred_mean:
         Clus_pred_mean_best.append([])
+        indelist.append([])
         for y in x:
             if first:
+                inde=0
                 Clus_pred_mean_best[ind].append(y)
+                indelist[ind].append(inde)
+                inde+=1
                 first=False
             else:
                 err=sum(y)-tot
@@ -164,29 +178,26 @@ elif best:
                         err2=-err2
                     if err<err2:
                         Clus_pred_mean_best[ind].insert(n,y)
+                        indelist[ind].insert(n,inde)
                         break
                     elif n==len(Clus_pred_mean_best[ind])-1:
                         Clus_pred_mean_best[ind].append(y)
+                        indelist[ind].append(inde)
                         break
+                    inde+=1
+        first=True
         ind+=1
 
     for b in range(kernel+1):
-        fig, axs = plt.subplots(2, 2)
+        fig, axs = plt.subplots()
         for x in range(10):
-            axs[0, 0].plot(Clus_pred_mean_best[b][x])#,label='Sample Label Red'
-        axs[0, 0].plot(actual_val[b][x], 'tab:blue')
-        axs[0, 0].set_title('Clus_pred_mean')
-        # for x in range(treshold+1):
-        #     axs[0, 1].plot(Clus_error_mean[b][x])
-        # axs[0, 1].set_title('Clus_error_mean')
-        # for x in range(treshold+1):
-        #     axs[1, 0].plot(delta_bacche_mean[b][x])
-        # axs[1, 0].set_title('delta_bacche_mean')
-        # for x in range(treshold+1):
-        #     axs[1, 1].plot(delta_bacche_abs_mean[b][x])
-        # axs[1, 1].set_title('delta_bacche_abs_mean')
+            axs.plot(Clus_pred_mean_best[b][x],label=(indelist[b][x]/100))
+        axs.set_ylabel('n of bacche')
+        axs.plot(actual_val[b][x], 'tab:blue')
+        axs.set_title('Clus_pred_mean')
+        fig.legend()
         fig.suptitle('Kernel size: '+str(kernlist[b])+"treshold: "+"all")
         figure = plt.gcf()  # get current figure
-        figure.set_size_inches(12, 8)
-        plt.savefig('./cvs_data/plot'+str("all")+str(treshlist[b])+'.png', dpi=1000)
+        figure.set_size_inches(15, 10)
+        plt.savefig('./cvs_data/plot'+str("all")+str(kernlist[b])+'.png', dpi=1000)
         plt.show()
