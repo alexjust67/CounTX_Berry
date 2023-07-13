@@ -24,7 +24,7 @@ def mainf(
         model,
         image_file_name = "./img/bacchetree.png",
         image= None,
-        text = "the number of berries",
+        text = "",
         sqsz=224,
         dm_save=True,
         showimage=True,

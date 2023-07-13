@@ -6,7 +6,7 @@ import module1 as m1
 import open_clip
 from PIL import Image
 
-dir_path='./img/datas/images/'                                #path to the directory containing the images.
+dir_path='C:/Users/Alex/Documents/CounTX_Berry/img/prove/'                                #path to the directory containing the images.
 
 # Load model.
 device= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")      #use gpu if available.
@@ -27,16 +27,16 @@ df.to_csv('./cvs_data/data.csv')
 #prepare the parameters.
 
 #queryes to feed the model.
-queryes=["the number of berries"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
+queryes=["the number of cars"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[300,250,350]
+sqsz=[600,250,350]
 
 #tresholds for the clusterfinder, all values outputted from the model under this treshold will be ignored.
 
-tresh=[[]]
-for l in range(0,100,1):
-    tresh[0].append(l/100)
+tresh=[[0.01,0.05]]
+#for l in range(0,100,1):
+#    tresh[0].append(l/100)
 
 #max length of the cluster, if the cluster is bigger than this value it will be ignored.
 mxlen=[17]
@@ -48,7 +48,7 @@ stride=[[50,50]]
 notes=""
 
 #visualization parameters.
-showimage=False
+showimage=True
 density_datasave=False
 rolling_datasave=False
 shownoise=False

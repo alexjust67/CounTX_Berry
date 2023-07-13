@@ -154,13 +154,15 @@ def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout
     #     plt.colorbar(im,ax=ax[1],fraction=0.036, pad=0.04)
     
     im=ax[1].imshow(density_map, cmap='jet', interpolation='nearest',alpha=0.85)
-    plt.colorbar(im,ax=ax[2],fraction=0.036, pad=0.04)
+    plt.colorbar(im,ax=ax[1],fraction=0.036, pad=0.04)
+    
+    #plt.colorbar(im,ax=ax[2],fraction=0.036, pad=0.04)
     
     # if clslstipe=="map":
     #     for it in clslst:
     #         ax[1].add_patch(patches.Rectangle((it[1],it[0]),it[3],it[2],linewidth=1,facecolor='none',edgecolor='red'))
-
-    plt.title("Pred: " + str(len(clslst)) + "G-T: "+ground_truth+" "+str(textadd))
+    model_pred=np.sum(density_map.numpy()/60)
+    plt.title("Pred: " + str(model_pred) + "G-T: "+ground_truth+" "+str(textadd))
     file_name=image_file_name[(image_file_name.rfind("/")+1):]
 
     plt.savefig(f"./img/results/{file_name}",dpi=1500)
