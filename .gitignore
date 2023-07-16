@@ -10,3 +10,7 @@ rolling_data
 img/results
 img/datas/images
 cvs_data/data - Copy.csv
+img/datas/PointsClass
+img/datas/gt_density_map_adaptive_384_VarV2/
+img/datas/images_384_VarV2/
+img/datas/SegmentationClass/

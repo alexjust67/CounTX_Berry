@@ -165,13 +165,18 @@ def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout
     plt.title("Pred: " + str(model_pred) + "G-T: "+ground_truth+" "+str(textadd))
     file_name=image_file_name[(image_file_name.rfind("/")+1):]
 
-    plt.savefig(f"./img/results/{file_name}",dpi=1500)
+    #plt.savefig(f"./img/results/{file_name}",dpi=1500)
     if showout: plt.show()
     plt.close('all')
 
 
 def clustercount2(density_map, treshold, mxlen=17):
     density_map = postprocess(density_map, treshold)
+    density_map = ndimage.measurements.label(density_map)[0]
+    maxval = np.max(density_map)
+    return maxval,density_map
+
+def clustercount2(density_map, treshold, mxlen=17):
     density_map = ndimage.measurements.label(density_map)[0]
     maxval = np.max(density_map)
     return maxval,density_map

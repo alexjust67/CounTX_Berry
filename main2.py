@@ -68,6 +68,6 @@ def mainf(
         print("Showing image...   ")
         showimagefun(density_map,image_file_name,clsmap,deh,dew,ground_truth)
 
-    return stridex,stridey, numlist, tresh, sqsz
+    return stridex,stridey, [y*1 for y in numlist], tresh, sqsz#.65
 
 
