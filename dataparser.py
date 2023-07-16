@@ -5,7 +5,7 @@ import numpy as np
 toghether=False
 #import the dataframe
 print("importing the dataframe")
-df=pd.read_csv("./cvs_data/datasmall.csv")
+df=pd.read_csv("./cvs_data/data0.020.08total.csv")
 # df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
 # df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
 # df=df.append(pd.read_csv("./cvs_data/456.csv"))
@@ -95,21 +95,28 @@ if not(toghether):
     for x in range(kernel+1):
         #plot the data through a multiaxis graph.
         fig, axs = plt.subplots(2, 2)
-        axs[0, 0].plot(Clus_pred_mean[x])
+        axs[0, 0].plot([y*1 for y in Clus_pred_mean[x]])
         axs[0, 0].plot(actual_val[x], 'tab:blue')
         axs[0, 0].set_ylabel('n of bacche')
         axs[0, 0].fill_between(range(0,len(actual_val[x])),np.array(Clus_pred_mean[x])-np.sqrt(np.array(Clus_pred_var[x])), np.array(Clus_pred_mean[x])+np.sqrt(np.array(Clus_pred_var[x])),alpha=0.5)
         axs[0, 0].set_ylim([0, 250])
         axs[0, 0].set_title('Clus_pred_mean')
         axs[0, 1].plot(Clus_error_mean[x], 'tab:orange')
-        axs[0, 1].set_yscale('log')
-        axs[0, 1].set_ylim([0, 2])
+        #axs[0, 1].set_yscale('log')
+        #axs[0, 1].set_ylim([0, 2])
         axs[0, 1].set_ylabel('err percent')
         axs[0, 1].set_title('Clus_error_mean')
-        axs[1, 0].plot(delta_bacche_mean[x], 'tab:green')
-        axs[1, 0].set_ylabel('d_bacche')
-        axs[1, 0].set_ylim([-150, 150])
-        axs[1, 0].set_title('delta_bacche_mean')
+        
+        if True:
+            axs[1, 0].set_ylabel('num_datapoins')
+            axs[1, 0].set_title('no of datapoints')
+            axs[1, 0].plot([len(Clus_pred[x][b]) for b in range(len(Clus_pred[x]))], 'tab:green')
+        else:
+            axs[1, 0].plot(delta_bacche_mean[x], 'tab:green')
+            axs[1, 0].set_ylabel('d_bacche')
+            axs[1, 0].set_ylim([-150, 150])
+            axs[1, 0].set_title('delta_bacche_mean')
+            
         axs[1, 1].plot(delta_bacche_abs_mean[x], 'tab:red')
         axs[1, 1].set_ylim([0, 150])
         axs[1, 1].set_ylabel('abs_d_bacche')
@@ -119,7 +126,7 @@ if not(toghether):
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 8)
         plt.savefig('./cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
-        #plt.show()
+        plt.show()
 else:
 
     fig, axs = plt.subplots(2, 2)

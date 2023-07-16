@@ -7,10 +7,10 @@ best=True
 
 #import the dataframe
 print("importing the dataframe")
-df=pd.read_csv("./cvs_data/data175-200-400-450.csv")
-df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
-df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
-df=df.append(pd.read_csv("./cvs_data/456.csv"))
+df=pd.read_csv("./cvs_data/data0.020.08total.csv")
+#df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
+#df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
+#df=df.append(pd.read_csv("./cvs_data/456.csv"))
 df = df.sort_values(['kern_size', 'treshold','exp_val'], ascending=[True, True,True])#
 #iterate over the dataframe and divide it by the column "expected value"
 actual_val=[[[[]]]]#[df['exp_val'][0]
@@ -191,7 +191,7 @@ elif best:
     for b in range(kernel+1):
         fig, axs = plt.subplots()
         for x in range(10):
-            axs.plot(Clus_pred_mean_best[b][x],label=(indelist[b][x]/100))
+            axs.plot(Clus_pred_mean_best[b][x],label=(indelist[b][x]))
         axs.set_ylabel('n of bacche')
         axs.plot(actual_val[b][x], 'tab:blue')
         axs.set_title('Clus_pred_mean')
