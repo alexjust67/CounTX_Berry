@@ -150,7 +150,8 @@ def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout
     #add a colorbar to the second and third axes.
     if clslstipe!="map":
         ax[1].imshow(img,extent=(0,dew,deh,0))
-        im=ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=0.85)
+        a=np.clip(a,0,1)
+        im=ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=1)
         
         plt.colorbar(im,ax=ax[1],fraction=0.036, pad=0.04)
     
