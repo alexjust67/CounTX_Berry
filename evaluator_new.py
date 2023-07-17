@@ -9,7 +9,7 @@ import json
 import numpy as np
 
 dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
-dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                      #path to the directory containing the images names.
+dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/SegmentationClass/'                      #path to the directory containing the images names.
 #load the json file with the annotations
 #anno=json.load(open('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/FSC-147-D.json'))
 #keys=list(anno.keys())

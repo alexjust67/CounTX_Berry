@@ -4,6 +4,8 @@ import matplotlib.image as mpimg
 import matplotlib.patches as patches
 import torch
 from scipy import ndimage
+import cv2
+from PIL import Image
 
 #apply a treshold to the density map.
 def postprocess(density_map,tresh):
@@ -187,6 +189,37 @@ def set_to_zero(arr, x):
         arr[arr == value] = 0
     
     return arr
+
+def normalize(img,mean,show=False):
+    
+    img=np.array(img,dtype=np.uint8)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    hist1=cv2.calcHist([gray], [0], None, [256], [0, 256])
+    # Convert the histogram numpy array to a 1D array (if needed)
+    histogram1 = hist1.flatten()
+    # Calculate the mean
+    mean1 = np.average(np.arange(256), weights=histogram1)
+    #calculate the ratio
+    ratio=mean/mean1
+    #normalize the image
+    img=img*ratio
+    img=np.array(img,dtype=np.uint8)
+
+    gray1 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    hist1=cv2.calcHist([gray1], [0], None, [256], [0, 256])
+    histogram1 = hist1.flatten()
+    mean1 = np.average(np.arange(256), weights=histogram1)
+
+    if show:
+        fig, ax = plt.subplots(2,1)
+        ax[0].imshow(cv2.cvtColor(img,cv2.COLOR_BGR2RGB), cmap='gray')
+        ax[1].plot(hist1)
+        ax[1].set_title('Mean: '+str(round(mean1,2)))
+        ax[1].axvline(mean1, color='r', linestyle='dashed', linewidth=1)
+        
+        plt.show()
+    return Image.fromarray(img)
+
 # def clustercount2(density_map, treshold, mxlen=17):
 #     density_map = ndimage.measurements.label(density_map)[0]
 #     maxval = np.max(density_map)

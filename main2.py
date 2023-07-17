@@ -15,7 +15,7 @@ from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
 import module1 as m1
-from postproc import clustercount,postprocess,showimagefun,clustercount2
+from postproc import clustercount,postprocess,showimagefun,clustercount2,normalize
 import matplotlib.patches as patches
 from noise import noise_map_creator
 import copy
@@ -47,6 +47,8 @@ def mainf(
     # Tokenize the text.
     enc_txt=tokenizer(text)
     
+    image = normalize(image,100)
+
     density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,no_stride=no_stride,showkern=showkern)
     
     if dm_save: np.save(f"./img/results/density_map.npy",density_map.numpy())
