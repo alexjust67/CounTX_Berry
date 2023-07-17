@@ -58,7 +58,7 @@ def mainf(
     x=[]
     i=0
     for tre in tresh:
-        clsnum,clsmap=clustercount2(density_map,tre/100,mxlen=mxlen)
+        clsnum,clsmap=clustercount2(density_map,tre,mxlen=mxlen)
         numlist.append(clsnum)
         i+=1
         if i % 50 == 0: print("Done ",i/len(tresh)*100,"%                   ",end="\r")
@@ -67,7 +67,8 @@ def mainf(
     if showimage:
         print("Showing image...   ")
         showimagefun(density_map,image_file_name,clsmap,deh,dew,ground_truth)
-
+    #if abs(int(clsnum)-int(ground_truth))>50:
+    #    showimagefun(density_map,image_file_name,clsmap,deh,dew,ground_truth,showout=False)
     return stridex,stridey, [y*1 for y in numlist], tresh, sqsz#.65
 
 

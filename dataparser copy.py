@@ -7,7 +7,7 @@ best=True
 
 #import the dataframe
 print("importing the dataframe")
-df=pd.read_csv("./cvs_data/data0.020.08total.csv")
+df=pd.read_csv("D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv")
 #df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
 #df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
 #df=df.append(pd.read_csv("./cvs_data/456.csv"))
@@ -190,8 +190,8 @@ elif best:
 
     for b in range(kernel+1):
         fig, axs = plt.subplots()
-        for x in range(10):
-            axs.plot(Clus_pred_mean_best[b][x],label=(indelist[b][x]))
+        for x in range(7):
+            axs.plot(Clus_pred_mean_best[b][x],label=(treshlist[b]))
         axs.set_ylabel('n of bacche')
         axs.plot(actual_val[b][x], 'tab:blue')
         axs.set_title('Clus_pred_mean')
@@ -199,5 +199,5 @@ elif best:
         fig.suptitle('Kernel size: '+str(kernlist[b])+"treshold: "+"all")
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(15, 10)
-        plt.savefig('./cvs_data/plot'+str("all")+str(kernlist[b])+'.png', dpi=1000)
+        #plt.savefig('./cvs_data/plot'+str("all")+str(kernlist[b])+'.png', dpi=1000)
         plt.show()

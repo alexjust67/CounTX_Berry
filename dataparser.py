@@ -5,7 +5,7 @@ import numpy as np
 toghether=False
 #import the dataframe
 print("importing the dataframe")
-df=pd.read_csv("./cvs_data/data0.020.08total.csv")
+df=pd.read_csv("D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv")
 # df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
 # df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
 # df=df.append(pd.read_csv("./cvs_data/456.csv"))
@@ -85,10 +85,10 @@ for x in range(kernel+1):
     delta_bacche_var.append([])
     delta_bacche_abs_var.append([])
     for i in range(len(Clus_pred[x])):
-        Clus_pred_var[x].append(sum([(y - Clus_pred_mean[x][i]) ** 2 for y in Clus_pred[x][i]]) / (len(Clus_pred[x][i])-1))
-        Clus_error_var[x].append(sum([(y - Clus_error_mean[x][i]) ** 2 for y in Clus_error[x][i]]) / (len(Clus_error[x][i])-1))
-        delta_bacche_var[x].append(sum([(y - delta_bacche_mean[x][i]) ** 2 for y in delta_bacche[x][i]]) / (len(delta_bacche[x][i])-1))
-        delta_bacche_abs_var[x].append(sum([(y - delta_bacche_abs_mean[x][i]) ** 2 for y in delta_bacche_abs[x][i]]) / (len(delta_bacche_abs[x][i])-1))
+        Clus_pred_var[x].append(sum([(y - Clus_pred_mean[x][i]) ** 2 for y in Clus_pred[x][i]]) / (len(Clus_pred[x][i])))#-1
+        Clus_error_var[x].append(sum([(y - Clus_error_mean[x][i]) ** 2 for y in Clus_error[x][i]]) / (len(Clus_error[x][i])))#-1
+        delta_bacche_var[x].append(sum([(y - delta_bacche_mean[x][i]) ** 2 for y in delta_bacche[x][i]]) / (len(delta_bacche[x][i])))#-1
+        delta_bacche_abs_var[x].append(sum([(y - delta_bacche_abs_mean[x][i]) ** 2 for y in delta_bacche_abs[x][i]]) / (len(delta_bacche_abs[x][i])))
 
 print("done averaging, plotting...")
 if not(toghether):
@@ -125,7 +125,7 @@ if not(toghether):
         fig.suptitle('Kernel size: '+str(kernlist[x]))
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 8)
-        plt.savefig('./cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
+        plt.savefig('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
         plt.show()
 else:
 
@@ -152,6 +152,6 @@ else:
     fig.suptitle('Kernel size: '+"all")
     figure = plt.gcf()  # get current figure
     figure.set_size_inches(12, 8)
-    plt.savefig('./cvs_data/plot'+str("all")+'.png', dpi=1000)
+    plt.savefig('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/plot'+str("all")+'.png', dpi=1000)
     plt.show()
 
