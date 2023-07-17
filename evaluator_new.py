@@ -40,7 +40,7 @@ sqsz=[350]
 #tresholds for the clusterfinder, all values outputted from the model under this treshold will be ignored.
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
-tresh=[[0.35]]
+tresh=[[0.45]]
 #max length of the cluster, if the cluster is bigger than this value it will be ignored.
 mxlen=[50]
 
