@@ -5,7 +5,7 @@ import numpy as np
 toghether=False
 #import the dataframe
 print("importing the dataframe")
-df=pd.read_csv("D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv")
+df=pd.read_csv("./cvs_data/dataoof.csv")
 # df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
 # df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
 # df=df.append(pd.read_csv("./cvs_data/456.csv"))
@@ -120,12 +120,12 @@ if not(toghether):
         axs[1, 1].plot(delta_bacche_abs_mean[x], 'tab:red')
         axs[1, 1].set_ylim([0, 150])
         axs[1, 1].set_ylabel('abs_d_bacche')
-        axs[1, 1].set_title('delta_bacche_abs_mean')
+        axs[1, 1].set_title('delta_bacche_abs_mean:'+str(round(np.mean(delta_bacche_abs_mean[x]),2))+"   "+str(round(np.mean(delta_bacche_mean[x]),2)))
         #fig.set_title('Kernel size: '+kernlist[x])
         fig.suptitle('Kernel size: '+str(kernlist[x]))
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 8)
-        plt.savefig('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
+        plt.savefig('./cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
         plt.show()
 else:
 
