@@ -8,17 +8,17 @@ from PIL import Image
 import json 
 import numpy as np
 
-# dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
-# dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/SegmentationClass/'                      #path to the directory containing the images names.
-dir_path='./img/datas/images/'                                #path to the directory containing the images.
-dir_path_names='./img/datas/images/'  
+dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
+dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/SegmentationClass/'                      #path to the directory containing the images names.
+#dir_path='./img/datas/images/'                                #path to the directory containing the images.
+#dir_path_names='./img/datas/images/'  
 #load the json file with the annotations
 #anno=json.load(open('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/FSC-147-D.json'))
 #keys=list(anno.keys())
 # Load model.
 device= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")      #use gpu if available.
 model = m1.main_counting_network()
-checkpoint = torch.load("./chkp/paper-model.pth", map_location=device)      #load the checkpoint.
+checkpoint = torch.load("D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth", map_location=device)      #load the checkpoint.
 model.load_state_dict(checkpoint["model"], strict=False)                    #load the model.
 
 dirfiles=len([entry for entry in os.listdir(dir_path_names) if os.path.isfile(os.path.join(dir_path_names, entry))])    #count the number of files in the directory.
@@ -30,7 +30,7 @@ dirfiles=len([entry for entry in os.listdir(dir_path_names) if os.path.isfile(os
 #prepare the dataframe.
 d = {'img': [], 'exp_val': [], 'clus_pred': [], 'treshold': [], 'kern_size': [], 'text': [], 'clus-error': [],'delta_bacche_abs':[],'delta_bacche':[]}
 df = pd.DataFrame(data=d)
-df.to_csv('.\cvs_data\data.csv')
+df.to_csv('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry\cvs_data\data.csv')
 #prepare the parameters.
 
 #queryes to feed the model.
@@ -53,7 +53,7 @@ stride=[[50,50]]
 notes=""
 
 #visualization parameters.
-showimage=True
+showimage=False
 density_datasave=False
 rolling_datasave=False
 shownoise=False
@@ -127,7 +127,7 @@ for strid in stride:
                                 df_roll=df_roll.append(df2)
                             ind+=1
                         iterat+=1
-                        df.to_csv('.\cvs_data\data.csv',mode='a', header=False)
+                        df.to_csv('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry\cvs_data\data.csv',mode='a', header=False)
                         df = df[0:0]
                     #if rolling data save is true save the rolling dataframe.
                     if rolling_datasave:    

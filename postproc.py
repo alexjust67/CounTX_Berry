@@ -190,7 +190,7 @@ def set_to_zero(arr, x):
     
     return arr
 
-def normalize(img,mean,show=False):
+def normalizeold(img,mean,show=False):
     
     img=np.array(img,dtype=np.uint8)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -219,6 +219,56 @@ def normalize(img,mean,show=False):
         
         plt.show()
     return Image.fromarray(img)
+
+
+def function2(x,b):
+    bx=(255/2)+b*(255/2)
+    by=(255/2)-b*(255/2)
+    if x<=bx:
+        return x*(by/bx)
+    else:
+        return ((255-by)/(255-bx))*(x-bx)+by
+
+def normalize(img,mean,show=False):
+    if show: imgorig=img.copy()
+    img=np.array(img,dtype=np.uint8)
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    hist1=cv2.calcHist([gray], [0], None, [256], [0, 256])
+    # Convert the histogram numpy array to a 1D array (if needed)
+    histogram1 = hist1.flatten()
+    # Calculate the mean
+    mean1 = np.average(np.arange(256), weights=histogram1)
+    #calculate the ratio
+    ratio=mean/mean1
+
+    b=(1-(ratio+(1-ratio)*0.5))*2.2
+    if show:
+        plt.plot([function2(x,b)for x in range(256)])
+        plt.show()
+    #normalize the image
+    for i in range(img.shape[0]):  # iterate over rows
+            for j in range(img.shape[1]):  # iterate over columns
+                for k in range(img.shape[2]):  # iterate over channels
+                    img[i, j, k] = round(function2(img[i, j, k],b))
+    img=np.array(img,dtype=np.uint8)
+    
+
+    gray1 = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    hist1=cv2.calcHist([gray1], [0], None, [256], [0, 256])
+    histogram1 = hist1.flatten()
+    mean1 = np.average(np.arange(256), weights=histogram1)
+
+    if show:
+        fig, ax = plt.subplots(2,1)
+        ax[0].imshow(cv2.cvtColor(img,cv2.COLOR_BGR2RGB), cmap='gray')
+        ax[1].imshow(cv2.cvtColor(imgorig,cv2.COLOR_BGR2RGB), cmap='gray')
+        #ax[2].plot(hist1)
+        #ax[2].set_title('Mean: '+str(round(mean1,2)))
+        #ax[2].axvline(mean1, color='r', linestyle='dashed', linewidth=1)
+        
+        plt.show()
+    return img
+
 
 # def clustercount2(density_map, treshold, mxlen=17):
 #     density_map = ndimage.measurements.label(density_map)[0]
