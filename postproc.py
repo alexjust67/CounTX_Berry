@@ -140,11 +140,10 @@ def iscluster_lft(density_map,x,y,tresh,lispt):
     else:
         return density_map,False,False,[]
 
-def showimagefun(density_map,image_file_name,clslst,deh,dew,ground_truth,showout=True,tresh=0.5,textadd="",clslstipe=""):
+def showimagefun(img,density_map,image_file_name,clslst,deh,dew,ground_truth,showout=True,tresh=0.5,textadd="",clslstipe=""):
    
     #a=postprocess(density_map,tresh=tresh)
     a=clslst#np.clip(clslst*1000,0,1)
-    img=mpimg.imread(image_file_name)
     fig,ax = plt.subplots(1,3,sharex=True,sharey=True)
     ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
     
