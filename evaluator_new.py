@@ -8,9 +8,9 @@ from PIL import Image
 import json 
 import numpy as np
 
-if (False):
-    dir_path='./img/renders/'                                #path to the directory containing the images.
-    dir_path_names='./img/renders/'                      #path to the directory containing the images names.
+if (True):
+    dir_path='./img/datas/images/'                                #path to the directory containing the images.
+    dir_path_names='./img/datas/images/'                      #path to the directory containing the images names.
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 else:
@@ -49,7 +49,7 @@ mxlen=[50]
 stride=[[50,50]]
 
 #visualization parameters.
-showimage=False
+showimage=True
 #save density map as npy.
 density_datasave=False
 #show the kernel.
