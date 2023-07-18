@@ -15,6 +15,7 @@ from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
 import cv2
+from postproc import normalize
 
 preprocess = transforms.Compose(
     [
