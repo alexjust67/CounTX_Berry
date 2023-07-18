@@ -18,6 +18,8 @@ import module1 as m1
 from postproc import clustercount,postprocess,showimagefun,normalize
 import matplotlib.patches as patches
 import copy
+import cv2
+from scipy import signal
 
 def mainf(
         model,
@@ -49,7 +51,7 @@ def mainf(
     i=0
 
     for tre in tresh:
-        clsnum,clsmap=clustercount(density_map,tre,mxlen=mxlen)
+        clsnum,clsmap=clustercount(density_map,tre,image,mxlen=mxlen)
         numlist.append(clsnum)
         i+=1
         if i % 50 == 0: print("Done ",i/len(tresh)*100,"%                   ",end="\r")
@@ -58,9 +60,9 @@ def mainf(
     
     if showimage:
         print("Showing image...   ")
+        b=np.ones((100,100))
         showimagefun(image,density_map,clsmap,deh,dew,ground_truth)
 
     
     return stridex,stridey, numlist, tresh, sqsz
-
 
