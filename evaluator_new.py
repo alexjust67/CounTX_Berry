@@ -57,39 +57,8 @@ showkern=False
 #show normalization
 shownorm=False
 
-templates = [
-    'the number of {}',
-    'a photo of a {}',
-    'a blurry photo of a {}',
-    'a black and white photo of a {}',
-    'a low contrast photo of a {}',
-    'a high contrast photo of a {}',
-    'a bad photo of a {}',
-    'a good photo of a {}',
-    'a photo of a small {}',
-    'a photo of a big {}',
-    'a photo of the {}',
-    'a blurry photo of the {}',
-    'a low contrast photo of the {}',
-    'a high contrast photo of the {}',
-    'a bad photo of the {}',
-    'a good photo of the {}',
-    'a photo of the small {}',
-    'a photo of the big {}',
-    'a photo of a {} texture',
-    'a photo of a {} pattern',
-    'a photo of a {} thing',
-    'a photo of a {} object',
-    'a photo of the {} texture',
-    'a photo of the {} pattern',
-    'a photo of the {} thing',
-    'a photo of the {} object',
-]
-
 #queryes to feed the model.
-#queryes=["the number of berries"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
-
-queryes=[[str(str(template.format('raspberries'))+', a type of fruit.') for template in templates]]
+queryes=[["the number of berries"]]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
 
 #template.format('berries') for template in templates]
 #loop through the parameters.

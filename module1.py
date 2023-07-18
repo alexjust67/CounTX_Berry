@@ -324,7 +324,7 @@ def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended
 
     return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
     
-def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224,stride=50,showkern=False,norm=0):
+def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224,stride=50,showkern=False,norm=0,shownorm=False):
     
     # Define preprocessing.
     tokenizer = open_clip.get_tokenizer("ViT-B-16")
@@ -417,5 +417,5 @@ def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224
             density_tot+=density_map
     
     density_map=density_tot/len(query)
-    
+
     return density_map,dew,deh,stridex,stridey
