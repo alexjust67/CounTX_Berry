@@ -8,9 +8,9 @@ from PIL import Image
 import json 
 import numpy as np
 
-if (False):
-    dir_path='./img/datas/images/'                                #path to the directory containing the images.
-    dir_path_names='./img/datas/images/'                      #path to the directory containing the images names.
+if (True):
+    dir_path='./img/renders/'                                #path to the directory containing the images.
+    dir_path_names='./img/renders/'                      #path to the directory containing the images names.
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 else:
@@ -36,7 +36,7 @@ df.to_csv(cvs_path)
 queryes=["the number of berries"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[350]
+sqsz=[150]
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
 tresh=[[0.45]]
@@ -55,7 +55,7 @@ showimage=True
 #save density map as npy.
 density_datasave=True
 #show the kernel.
-showkern=True
+showkern=False
 #show normalization
 shownorm=True
 

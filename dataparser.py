@@ -7,7 +7,7 @@ toghether=False      #used to compare different kernel sizes.
 
 #import the dataframe
 print("importing the data")
-df=pd.read_csv("./cvs_data/datadoublenorm120.csv")
+df=pd.read_csv("./cvs_data/data130.csv")
 
 #sort the dataframe by kernel size and expected value.
 df=df.sort_values(['kern_size', 'exp_val'], ascending=[True, True])
