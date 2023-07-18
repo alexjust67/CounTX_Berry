@@ -15,6 +15,7 @@ from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
 import cv2
+from postproc import normalize
 
 preprocess = transforms.Compose(
     [
@@ -324,7 +325,7 @@ def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended
 
     return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
     
-def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224,stride=50,showkern=False,norm=0):
+def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224,stride=50,showkern=False,norm=0,shownorm=False):
     
     # Define preprocessing.
     tokenizer = open_clip.get_tokenizer("ViT-B-16")

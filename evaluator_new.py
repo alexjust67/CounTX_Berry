@@ -8,7 +8,7 @@ from PIL import Image
 import json 
 import numpy as np
 
-if (True):
+if (False):
     dir_path='./img/datas/images/'                                #path to the directory containing the images.
     dir_path_names='./img/datas/images/'                      #path to the directory containing the images names.
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
