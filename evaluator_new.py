@@ -8,14 +8,14 @@ from PIL import Image
 import json 
 import numpy as np
 
-if (True):
+if (False):
     dir_path='./img/renders/'                                #path to the directory containing the images.
     dir_path_names='./img/renders/'                      #path to the directory containing the images names.
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 else:
-    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
-    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                      #path to the directory containing the images names.
+    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/'                                #path to the directory containing the images.
+    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/'                      #path to the directory containing the images names.
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 
@@ -32,11 +32,9 @@ d = {'img': [], 'exp_val': [], 'clus_pred': [], 'treshold': [], 'kern_size': [],
 df = pd.DataFrame(data=d)
 df.to_csv(cvs_path)
 
-#queryes to feed the model.
-queryes=["the number of berries"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[150]
+sqsz=[350]
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
 tresh=[[0.45]]
@@ -51,14 +49,49 @@ mxlen=[50]
 stride=[[50,50]]
 
 #visualization parameters.
-showimage=True
+showimage=False
 #save density map as npy.
-density_datasave=True
+density_datasave=False
 #show the kernel.
 showkern=False
 #show normalization
-shownorm=True
+shownorm=False
 
+templates = [
+    'the number of {}',
+    'a photo of a {}',
+    'a blurry photo of a {}',
+    'a black and white photo of a {}',
+    'a low contrast photo of a {}',
+    'a high contrast photo of a {}',
+    'a bad photo of a {}',
+    'a good photo of a {}',
+    'a photo of a small {}',
+    'a photo of a big {}',
+    'a photo of the {}',
+    'a blurry photo of the {}',
+    'a low contrast photo of the {}',
+    'a high contrast photo of the {}',
+    'a bad photo of the {}',
+    'a good photo of the {}',
+    'a photo of the small {}',
+    'a photo of the big {}',
+    'a photo of a {} texture',
+    'a photo of a {} pattern',
+    'a photo of a {} thing',
+    'a photo of a {} object',
+    'a photo of the {} texture',
+    'a photo of the {} pattern',
+    'a photo of the {} thing',
+    'a photo of the {} object',
+]
+
+#queryes to feed the model.
+#queryes=["the number of berries"]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
+
+queryes=[[str(str(template.format('raspberries'))+', a type of fruit.') for template in templates]]
+
+#template.format('berries') for template in templates]
 #loop through the parameters.
 iterat=1
 for strid in stride:
@@ -84,7 +117,7 @@ for strid in stride:
                                                 
                         image=image,                                                                                        #image.
 
-                        text=text,                                                                                          #text prompt.
+                        query=text,                                                                                          #text prompt.
                         
                         sqsz=sqsz1,                                                                                         #size of image division kernel.
                         

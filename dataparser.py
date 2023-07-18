@@ -125,8 +125,8 @@ if not(toghether):
         fig.suptitle('Kernel size: '+str(kernlist[x]))
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 8)
-        plt.savefig('./cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
-        plt.show()
+        plt.savefig('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
+        #plt.show()
 else:
 
     fig, axs = plt.subplots(2, 2)
