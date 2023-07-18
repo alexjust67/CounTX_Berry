@@ -1,6 +1,0 @@
-1 create a dataloader that can plot the loss in respect to the changed parameter
-
-Issues,observations:
-
-1. The peak that the model gives is proportional to the certainty, wich in terms varies with how well the model can distinguish the given object between the background and the other objects.
-2. The integration is more and more incorrect with the increase of the number of objects in the image and the size of the image itself.

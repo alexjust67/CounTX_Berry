@@ -15,14 +15,12 @@ from util.pos_embed import get_2d_sincos_pos_embed
 import matplotlib.image as mpimg
 import time
 import module1 as m1
-from postproc import clustercount,postprocess,showimagefun,clustercount2,normalize
+from postproc import clustercount,postprocess,showimagefun,normalize
 import matplotlib.patches as patches
-from noise import noise_map_creator
 import copy
 
 def mainf(
         model,
-        image_file_name = "./img/bacchetree.png",
         image= None,
         text = "",
         sqsz=224,
@@ -35,42 +33,39 @@ def mainf(
         mxlen=20,
         stride=[50,50],
         device="cpu",
+        shownorm=False,
 ):
-    
-    if stride==0:
-        no_stride=True
-    else:
-        no_stride=False
     
     # Define preprocessing.
     tokenizer = open_clip.get_tokenizer("ViT-B-16")
+    
     # Tokenize the text.
     enc_txt=tokenizer(text)
     
-    image = normalize(image,120)
+    image = normalize(image,120,show=shownorm)
 
-    density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,no_stride=no_stride,showkern=showkern)
+    density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,showkern=showkern)
     
-    if dm_save: np.save(f"./img/results/density_map.npy",density_map.numpy())
-
     print("Calculating clusters...   ")
     
     strt=time.time()
     numlist=[]
     x=[]
     i=0
+
     for tre in tresh:
-        clsnum,clsmap=clustercount2(density_map,tre,mxlen=mxlen)
+        clsnum,clsmap=clustercount(density_map,tre,mxlen=mxlen)
         numlist.append(clsnum)
         i+=1
         if i % 50 == 0: print("Done ",i/len(tresh)*100,"%                   ",end="\r")
+    
     print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
     
     if showimage:
         print("Showing image...   ")
-        showimagefun(image,density_map,image_file_name,clsmap,deh,dew,ground_truth)
-    #if abs(int(clsnum)-int(ground_truth))>50:
-    #    showimagefun(density_map,image_file_name,clsmap,deh,dew,ground_truth,showout=False)
-    return stridex,stridey, [y*1 for y in numlist], tresh, sqsz#.65
+        showimagefun(image,density_map,clsmap,deh,dew,ground_truth)
+
+    
+    return stridex,stridey, numlist, tresh, sqsz
 
 

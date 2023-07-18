@@ -1,18 +1,19 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+
 #this script is used to parse the data from the csv files and plot them.
-toghether=False
+toghether=True      #used to compare different kernel sizes.
+
 #import the dataframe
 print("importing the dataframe")
 df=pd.read_csv("./cvs_data/dataoof.csv")
-# df=df.append(pd.read_csv("./cvs_data/data250-350.csv"))
-# df=df.append(pd.read_csv("./cvs_data/data320-330-340.csv"))
-# df=df.append(pd.read_csv("./cvs_data/456.csv"))
+
+#sort the dataframe by kernel size and expected value.
 df=df.sort_values(['kern_size', 'exp_val'], ascending=[True, True])
 
 #iterate over the dataframe and divide it by the column "expected value"
-actual_val=[[[]]]#[df['exp_val'][0]
+actual_val=[[[]]]
 Clus_pred=[[[]]]
 Clus_error=[[[]]]
 delta_bacche=[[[]]]
@@ -59,6 +60,7 @@ for index, row in df.iterrows():
         prev_row=row['exp_val']
         kernlist.append(row['kern_size'])
 print("done dividing the dataframe, averaging...")
+
 #calculate the mean of the lists.
 Clus_pred_mean=[]
 Clus_error_mean=[]
@@ -74,6 +76,7 @@ for x in range(kernel+1):
         Clus_error_mean[x].append(sum(Clus_error[x][i])/len(Clus_error[x][i]))
         delta_bacche_mean[x].append(sum(delta_bacche[x][i])/len(delta_bacche[x][i]))
         delta_bacche_abs_mean[x].append(sum(delta_bacche_abs[x][i])/len(delta_bacche_abs[x][i]))
+
 #calculate the variance of the lists.
 Clus_pred_var=[]
 Clus_error_var=[]
@@ -102,8 +105,6 @@ if not(toghether):
         axs[0, 0].set_ylim([0, 250])
         axs[0, 0].set_title('Clus_pred_mean')
         axs[0, 1].plot(Clus_error_mean[x], 'tab:orange')
-        #axs[0, 1].set_yscale('log')
-        #axs[0, 1].set_ylim([0, 2])
         axs[0, 1].set_ylabel('err percent')
         axs[0, 1].set_title('Clus_error_mean')
         
@@ -121,7 +122,6 @@ if not(toghether):
         axs[1, 1].set_ylim([0, 150])
         axs[1, 1].set_ylabel('abs_d_bacche')
         axs[1, 1].set_title('delta_bacche_abs_mean:'+str(round(np.mean(delta_bacche_abs_mean[x]),2))+"   "+str(round(np.mean(delta_bacche_mean[x]),2)))
-        #fig.set_title('Kernel size: '+kernlist[x])
         fig.suptitle('Kernel size: '+str(kernlist[x]))
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 8)
@@ -152,6 +152,5 @@ else:
     fig.suptitle('Kernel size: '+"all")
     figure = plt.gcf()  # get current figure
     figure.set_size_inches(12, 8)
-    plt.savefig('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/plot'+str("all")+'.png', dpi=1000)
     plt.show()
 

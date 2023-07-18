@@ -324,7 +324,12 @@ def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended
 
     return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
     
-def density_map_creator(image,model,text_add,enc_txt,dm_save,device="cpu",sqsz=224,stride=50,no_stride=False,showkern=False):
+def density_map_creator(image,model,text_add,enc_txt,dm_save,device="cpu",sqsz=224,stride=50,showkern=False):
+    
+    if stride==0:
+        no_stride=True
+    else:
+        no_stride=False
     
     # Resize and center crop the image into sqsz shapes.
     if no_stride: 
@@ -337,8 +342,6 @@ def density_map_creator(image,model,text_add,enc_txt,dm_save,device="cpu",sqsz=2
         deh=math.floor((deh/sqsz)*384)  #actual size of the final image
         dew=math.floor((dew/sqsz)*384)
         stridex,stridey,w1,h1,image2,coord=split_image_stride(copy.deepcopy(image),sqsz,stride=stride)
-    
-    
     
     w=0
     h=0
