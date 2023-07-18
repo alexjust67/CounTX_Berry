@@ -3,11 +3,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #this script is used to parse the data from the csv files and plot them.
-toghether=True      #used to compare different kernel sizes.
+toghether=False      #used to compare different kernel sizes.
 
 #import the dataframe
-print("importing the dataframe")
-df=pd.read_csv("./cvs_data/dataoof.csv")
+print("importing the data")
+df=pd.read_csv("./cvs_data/datadoublenorm120.csv")
 
 #sort the dataframe by kernel size and expected value.
 df=df.sort_values(['kern_size', 'exp_val'], ascending=[True, True])

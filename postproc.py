@@ -94,13 +94,13 @@ def normalize(img,mean,show=False):
 
     if show:
         fig, ax = plt.subplots(2,2)
-        ax[0,0].imshow(img)
-        ax[1,0].imshow(imgorig)
-        ax[1,1].plot(cv2.calcHist([gray], [0], None, [256], [0, 256]))
-        ax[1,1].set_title('Mean: '+str(round(mean1,2)))
-        ax[1,1].axvline(mean1c, color='r', linestyle='dashed', linewidth=1)
-        ax[1,1].axvline(mean, color='g', linestyle='dashed', linewidth=1)
-        ax[0,1].plot([function2(x,b)for x in range(256)])
+        ax[1,0].imshow(img)
+        ax[0,0].imshow(imgorig)
+        ax[0,1].plot(cv2.calcHist([gray], [0], None, [256], [0, 256]))
+        ax[0,1].set_title('Mean: '+str(round(mean1,2)))
+        ax[0,1].axvline(mean1c, color='r', linestyle='dashed', linewidth=1)
+        ax[0,1].axvline(mean, color='g', linestyle='dashed', linewidth=1)
+        ax[1,1].plot([function2(x,b)for x in range(256)])
 
         plt.show()
 

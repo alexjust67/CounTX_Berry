@@ -35,6 +35,9 @@ sqsz=[350]
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
 tresh=[[0.45]]
 
+#normalization value.
+norm=110
+
 #max length of the cluster, if the cluster is bigger than this value it will be ignored.
 mxlen=[50]
 
@@ -42,13 +45,13 @@ mxlen=[50]
 stride=[[50,50]]
 
 #visualization parameters.
-showimage=False
+showimage=True
 #save density map as npy.
-density_datasave=False
+density_datasave=True
 #show the kernel.
-showkern=False
+showkern=True
 #show normalization
-shownorm=False
+shownorm=True
 
 #loop through the parameters.
 iterat=1
@@ -98,6 +101,8 @@ for strid in stride:
                         device=device,                                                                                      #device to use.
                         
                         shownorm=shownorm,                                                                                  #show normalization.
+                        
+                        norm=norm,                                                                                          #normalization value.
                         )
                         
                         ind=0

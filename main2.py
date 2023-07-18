@@ -34,6 +34,7 @@ def mainf(
         stride=[50,50],
         device="cpu",
         shownorm=False,
+        norm=110,
 ):
     
     # Define preprocessing.
@@ -42,7 +43,7 @@ def mainf(
     # Tokenize the text.
     enc_txt=tokenizer(text)
     
-    image = normalize(image,120,show=shownorm)
+    image = normalize(image,norm,show=shownorm)
 
     density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,showkern=showkern)
     
