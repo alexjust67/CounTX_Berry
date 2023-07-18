@@ -42,7 +42,7 @@ sqsz=[350]
 tresh=[[0.45]]
 
 #normalization value.
-norm=110
+norm=130
 
 #max length of the cluster, if the cluster is bigger than this value it will be ignored.
 mxlen=[50]
@@ -51,13 +51,13 @@ mxlen=[50]
 stride=[[50,50]]
 
 #visualization parameters.
-showimage=True
+showimage=False
 #save density map as npy.
-density_datasave=True
+density_datasave=False
 #show the kernel.
-showkern=True
+showkern=False
 #show normalization
-shownorm=True
+shownorm=False
 
 #loop through the parameters.
 iterat=1
