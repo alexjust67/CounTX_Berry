@@ -22,7 +22,7 @@ import copy
 def mainf(
         model,
         image= None,
-        text = "",
+        query = "",
         sqsz=224,
         dm_save=True,
         showimage=True,
@@ -39,14 +39,20 @@ def mainf(
     
     # Define preprocessing.
     tokenizer = open_clip.get_tokenizer("ViT-B-16")
-    
-    # Tokenize the text.
-    enc_txt=tokenizer(text)
-    
-    image = normalize(image,norm,show=shownorm)
+    fir=True
+    for text in query:
+        # Tokenize the text.
+        enc_txt=tokenizer(text)
+        
+        if norm!= 0: image = normalize(image,norm,show=shownorm)
 
-    density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,showkern=showkern)
+        density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,enc_txt,dm_save,device=device,sqsz=sqsz,stride=stride,showkern=showkern)
+        if fir:
+            density_tot=density_map
+        else:
+            density_tot+=density_map  
     
+    density_map=density_tot/len(query)
     print("Calculating clusters...   ")
     
     strt=time.time()
