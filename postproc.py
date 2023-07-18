@@ -79,8 +79,9 @@ def normalize(img,mean,show=False):
     mean1c=mean1
     #calculate the ratio
     ratio=mean/mean1
-
-    b=(1-(ratio+(1-ratio)*0.5))*2.2
+    
+    b=(1-ratio)*2.2
+    if b<0: b=0
 
     #normalize the image
     img=function2(img,b)
