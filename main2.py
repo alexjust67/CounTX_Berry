@@ -61,7 +61,6 @@ def mainf(
     
     if showimage and int(ground_truth)>50:
         print("Showing image...   ")
-        b=np.ones((100,100))
         showimagefun(image,density_map,clsmap,deh,dew,ground_truth)
 
     
