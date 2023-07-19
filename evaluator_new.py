@@ -14,8 +14,8 @@ if (False):
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 else:
-    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
-    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/PointsClass/'                      #path to the directory containing the images names.
+    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                                #path to the directory containing the images.
+    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                      #path to the directory containing the images names.
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 
@@ -34,7 +34,7 @@ df.to_csv(cvs_path)
 
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[350]
+sqsz=[1000]
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
 tresh=[[0.45]]
@@ -49,10 +49,10 @@ mxlen=[50]
 stride=[[50,50]]
 
 #filter the cluster by color
-colorfilter=False
+colorfilter=True
 
 #visualization parameters.
-showimage=False
+showimage=True
 #save density map as npy.
 density_datasave=False
 #show the kernel.

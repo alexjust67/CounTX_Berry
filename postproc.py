@@ -16,16 +16,31 @@ def postprocess(density_map,tresh):
 
     return density_map
 
+def is_prime(n):
+    if n % 2 == 0:
+        return False
+    for i in range(3, int(n ** 0.5)+1, 2):
+        if n % i == 0:
+            return False
+    return True
+
+def closest_prime(n):
+    if n % 2 == 0:
+        n = n - 1
+    while not is_prime(n):
+        n = n - 2
+    return n
+
+
 #show the image with the density map and the clusters.
 def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textadd=""):
     
-    a=np.clip(clslst,0,1)
+    a=np.clip(clslst*255,0,255)
     a=Image.fromarray(a)
-    #change a to 'L'
     a=a.convert('L')
     a=a.resize((density_map.shape[1],density_map.shape[0]))
-    a=a.filter(ImageFilter.GaussianBlur(radius = density_map.shape[1]/60))
-    a=a.filter(ImageFilter.GaussianBlur(radius = density_map.shape[1]/100))
+    a=a.filter(ImageFilter.MaxFilter(closest_prime(int(density_map.shape[1]/80))))
+    a=a.filter(ImageFilter.GaussianBlur(radius = density_map.shape[1]/30))
     a=np.array(a)
     
     fig,ax = plt.subplots(1,3,sharex=True,sharey=True)

@@ -60,7 +60,7 @@ def mainf(
     
     print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
     
-    if showimage and int(ground_truth)>50:
+    if showimage:
         print("Showing image...   ")
         showimagefun(image,density_map,clsmap,deh,dew,ground_truth)
 
