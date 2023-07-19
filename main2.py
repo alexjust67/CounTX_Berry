@@ -37,6 +37,7 @@ def mainf(
         device="cpu",
         shownorm=False,
         norm=110,
+        colorfilter=False,
 ):
     
 
@@ -51,7 +52,7 @@ def mainf(
     i=0
 
     for tre in tresh:
-        clsnum,clsmap=clustercount(density_map,tre,image,mxlen=mxlen)
+        clsnum,clsmap=clustercount(density_map,tre,image,mxlen=mxlen,colorfilter=colorfilter)
         numlist.append(clsnum)
         i+=1
         if i % 50 == 0: print("Done ",i/len(tresh)*100,"%                   ",end="\r")
@@ -60,7 +61,6 @@ def mainf(
     
     if showimage:
         print("Showing image...   ")
-        b=np.ones((100,100))
         showimagefun(image,density_map,clsmap,deh,dew,ground_truth)
 
     

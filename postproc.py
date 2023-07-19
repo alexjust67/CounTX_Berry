@@ -47,14 +47,15 @@ def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textad
     plt.close('all')
 
 
-def clustercount(density_map, treshold,rgb_image, mxlen=17):
+def clustercount(density_map, treshold,rgb_image, mxlen=17,colorfilter=False):
     density_map = postprocess(density_map, treshold)
     density_map = ndimage.measurements.label(density_map)[0]
     density_map = set_to_zero(density_map, mxlen)
     density_map = ndimage.measurements.label(density_map)[0]
     density_map = set_to_zero(density_map, mxlen)
-    density_map = remove_nonred_clusters(density_map, rgb_image)
-    density_map = ndimage.measurements.label(density_map)[0]
+    if colorfilter:
+        density_map = remove_nonred_clusters(density_map, rgb_image)
+        density_map = ndimage.measurements.label(density_map)[0]
     maxval = np.max(density_map)
     return maxval,density_map
 

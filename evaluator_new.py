@@ -14,8 +14,8 @@ if (False):
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 else:
-    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/1/'                                #path to the directory containing the images.
-    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/1/'                      #path to the directory containing the images names.
+    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
+    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/SegmentationClass/'                      #path to the directory containing the images names.
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 
@@ -34,7 +34,7 @@ df.to_csv(cvs_path)
 
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[1000]
+sqsz=[350]
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
 tresh=[[0.45]]
@@ -48,8 +48,11 @@ mxlen=[50]
 #strides, if 0 no stride will be used, if set to "autostride", it will set the stride automatically to evenly cover the image with a minimum set by the second value in the list.
 stride=[[50,50]]
 
+#filter the cluster by color
+colorfilter=False
+
 #visualization parameters.
-showimage=True
+showimage=False
 #save density map as npy.
 density_datasave=False
 #show the kernel.
@@ -111,6 +114,8 @@ for strid in stride:
                         shownorm=shownorm,                                                                                  #show normalization.
                         
                         norm=norm,                                                                                          #normalization value.
+                        
+                        colorfilter=colorfilter,                                                                            #filter the cluster by color.
                         )
                         
                         ind=0
