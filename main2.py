@@ -40,7 +40,8 @@ def mainf(
 
     density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,query,dm_save,device=device,sqsz=sqsz,stride=stride,showkern=showkern,norm=norm,shownorm=shownorm)
     
-    
+    dencp=copy.deepcopy(density_map)
+
     print("Calculating clusters...   ")
     
     strt=time.time()
@@ -56,9 +57,9 @@ def mainf(
     
     print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
     
-    if showimage:
+    if showimage and int(ground_truth)>50:
         print("Showing image...   ")
-        showimagefun(image,density_map,clsmap,deh,dew,ground_truth)
+        showimagefun(image,dencp,clsmap,deh,dew,ground_truth)
 
     
     return stridex,stridey, numlist, tresh, sqsz
