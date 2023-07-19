@@ -15,7 +15,7 @@ if (False):
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 else:
     dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
-    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/SegmentationClass/'                      #path to the directory containing the images names.
+    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/PointsClass/'                      #path to the directory containing the images names.
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 
