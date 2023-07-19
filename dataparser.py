@@ -100,12 +100,13 @@ if not(toghether):
         fig, axs = plt.subplots(2, 2)
         axs[0, 0].plot([y*1 for y in Clus_pred_mean[x]])
         axs[0, 0].plot(actual_val[x], 'tab:blue')
-        axs[0, 0].set_ylabel('n of bacche')
+        axs[0, 0].set_ylabel('n of bacche (prediction)')
+        axs[0, 0].set_xlabel('n of bacche (ground truth)')
         axs[0, 0].fill_between(range(0,len(actual_val[x])),np.array(Clus_pred_mean[x])-np.sqrt(np.array(Clus_pred_var[x])), np.array(Clus_pred_mean[x])+np.sqrt(np.array(Clus_pred_var[x])),alpha=0.5)
         axs[0, 0].set_ylim([0, 250])
         axs[0, 0].set_title('Clus_pred_mean')
         axs[0, 1].plot(Clus_error_mean[x], 'tab:orange')
-        axs[0, 1].set_ylabel('err percent')
+        axs[0, 1].set_ylabel('MSE')
         axs[0, 1].set_title('Clus_error_mean')
         
         if True:
@@ -122,7 +123,7 @@ if not(toghether):
         axs[1, 1].set_ylim([0, 150])
         axs[1, 1].set_ylabel('abs_d_bacche')
         axs[1, 1].set_title('delta_bacche_abs_mean:'+str(round(np.mean(delta_bacche_abs_mean[x]),2))+"   "+str(round(np.mean(delta_bacche_mean[x]),2)))
-        fig.suptitle('Kernel size: '+str(kernlist[x]))
+        fig.suptitle('Kernel size: 350, Treshold: 0.45, max cluster size: 50, stride: 50, query: the number of berries')
         figure = plt.gcf()  # get current figure
         figure.set_size_inches(12, 8)
         #plt.savefig('D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/plot'+str(kernlist[x])+'.png', dpi=1000)
