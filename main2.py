@@ -38,8 +38,13 @@ def mainf(
         shownorm=False,
         norm=110,
         colorfilter=False,
+        height=0,
+        adap_krnl=False,
 ):
     
+    if adap_krnl:
+        sqsz=round(-174*height+1281)
+
 
     density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,query,dm_save,device=device,sqsz=sqsz,stride=stride,showkern=showkern,norm=norm,shownorm=shownorm)
     
@@ -62,7 +67,7 @@ def mainf(
     
     if showimage:
         print("Showing image...   ")
-        showimagefun(image,density_map,clsmap,deh,dew,ground_truth)
+        showimagefun(image,density_map,clsmap,deh,dew,ground_truth,textadd=text_add,showout=False)
 
     
     return stridex,stridey, numlist, tresh, sqsz

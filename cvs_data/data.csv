@@ -1,1 +1,12 @@
 ,img,exp_val,clus_pred,treshold,kern_size,text,clus-error,delta_bacche_abs,delta_bacche
+0,0.5m.png,0.0,61.0,0.45,1194.0,['the number of berries'],3721.0,61.0,61.0
+0,1m.png,0.0,94.0,0.45,1107.0,['the number of berries'],8836.0,94.0,94.0
+0,0m.png,0.0,0.0,0.45,1281.0,['the number of berries'],0.0,0.0,0.0
+0,2.5m.png,0.0,50.0,0.45,846.0,['the number of berries'],2500.0,50.0,50.0
+0,3m.png,0.0,39.0,0.45,759.0,['the number of berries'],1521.0,39.0,39.0
+0,3.5m.png,0.0,35.0,0.45,672.0,['the number of berries'],1225.0,35.0,35.0
+0,4m.png,0.0,38.0,0.45,585.0,['the number of berries'],1444.0,38.0,38.0
+0,2m.png,0.0,70.0,0.45,933.0,['the number of berries'],4900.0,70.0,70.0
+0,4.5m.png,0.0,51.0,0.45,498.0,['the number of berries'],2601.0,51.0,51.0
+0,1.5m.png,0.0,94.0,0.45,1020.0,['the number of berries'],8836.0,94.0,94.0
+0,5m.png,0.0,64.0,0.45,411.0,['the number of berries'],4096.0,64.0,64.0

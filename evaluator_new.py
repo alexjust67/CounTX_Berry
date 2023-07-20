@@ -13,12 +13,16 @@ if (False):
     dir_path_names='./img/datas/images/'                      #path to the directory containing the images names.
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
-else:
+elif (False):
     dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                                #path to the directory containing the images.
     dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                      #path to the directory containing the images names.
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
-
+else:
+    dir_path='/home/agiustina/CounTX_Berry/img/renders/drone/'                                #path to the directory containing the images.
+    dir_path_names='/home/agiustina/CounTX_Berry/img/renders/drone/'                      #path to the directory containing the images names.
+    cvs_path='/home/agiustina/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
+    ckp_path='/home/agiustina/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 # Load model.
 device= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")      #use gpu if available.
 model = m1.main_counting_network()
@@ -34,7 +38,8 @@ df.to_csv(cvs_path)
 
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[1000]
+sqsz=[1100]
+adap_krnl=True
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
 tresh=[[0.45]]
@@ -76,6 +81,8 @@ for strid in stride:
                         
                         filename = os.fsdecode(file)
                         
+                        height=float(filename[:filename.find("m")])
+
                         #get the ground truth value.
                         ground_truth=filename[6:(filename[6:].find("_")+6)]#(filename.find("pred")+1):(filename.find("_")-1)
                                                 
@@ -101,7 +108,7 @@ for strid in stride:
                         
                         tresh=tre,                                                                                          #image filtering treshold, values under this will not be taken into consideration by the clusterfinder.
 
-                        text_add=f"file no:{iterat} of {dirfiles*len(sqsz)*len(tresh)*len(stride)*len(queryes)}",           #text to add to the print.
+                        text_add=filename,           #text to add to the print.
 
                         ground_truth=ground_truth,                                                                          #ground truth value.
 
@@ -116,11 +123,19 @@ for strid in stride:
                         norm=norm,                                                                                          #normalization value.
                         
                         colorfilter=colorfilter,                                                                            #filter the cluster by color.
+                        
+                        height=height,                                                                                      #height of the drone.
+                        
+                        adap_krnl=adap_krnl,                                                                                    #use adaptive kernel.
                         )
                         
                         ind=0
 
                         for clsti in clst: 
+                            try:
+                                ground_truth=int(ground_truth)
+                            except:
+                                ground_truth=0
                             
                             d2 = {'img': [filename], 'exp_val': [ground_truth], 'clus_pred': [clsti], 'treshold': [tre[ind]], 'kern_size': [sqz], 'text': [str(text)], 'clus-error': [(clsti-int(ground_truth))**2],'delta_bacche_abs':[abs(int(ground_truth)-clsti)],'delta_bacche':[clsti-int(ground_truth)]}
                         

@@ -41,15 +41,17 @@ def chk_prime(n):
 def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textadd=""):
     
     a=np.clip(clslst*255,0,255)
-    a=np.clip(clslst*255,0,255)
     a=Image.fromarray(a)
     a=a.convert('L')
     a=a.resize((density_map.shape[1],density_map.shape[0]))
     a=boxfilter(a,density_map.shape[1])
 
-    a=a.filter(ImageFilter.GaussianBlur(radius = 80))
+    a=a.filter(ImageFilter.GaussianBlur(radius = 70))
     a=np.array(a)
-    
+    a_cv2 = 255//np.max(a)*a
+    im_color = cv2.applyColorMap(a_cv2, cv2.COLORMAP_JET)
+    cv2.imwrite(f"/home/agiustina/CounTX_Berry/img/renders/dronemap/droneres/{textadd}",im_color)
+
     fig,ax = plt.subplots(1,3,sharex=True,sharey=True)
     ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
     
