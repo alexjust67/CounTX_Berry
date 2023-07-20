@@ -5,8 +5,10 @@ import torch
 import module1 as m1
 import open_clip
 from PIL import Image
+from PIL import ImageFilter
 import json 
 import numpy as np
+import matplotlib.pyplot as plt
 
 if (False):
     dir_path='./img/datas/images/'                                #path to the directory containing the images.
@@ -14,8 +16,8 @@ if (False):
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 elif (False):
-    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                                #path to the directory containing the images.
-    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                      #path to the directory containing the images names.
+    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/drone/'                                #path to the directory containing the images.
+    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/drone/'                      #path to the directory containing the images names.
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 else:
@@ -23,6 +25,7 @@ else:
     dir_path_names='/home/agiustina/CounTX_Berry/img/renders/drone/'                      #path to the directory containing the images names.
     cvs_path='/home/agiustina/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='/home/agiustina/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
+
 # Load model.
 device= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")      #use gpu if available.
 model = m1.main_counting_network()
@@ -38,7 +41,7 @@ df.to_csv(cvs_path)
 
 
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
-sqsz=[1100]
+sqsz=[350]
 adap_krnl=True
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
@@ -63,7 +66,7 @@ density_datasave=False
 #show the kernel.
 showkern=False
 #show normalization
-shownorm=False
+shownorm=True
 
 #queryes to feed the model.
 queryes=[["the number of berries"]]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
@@ -81,15 +84,17 @@ for strid in stride:
                         
                         filename = os.fsdecode(file)
                         
-                        height=float(filename[:filename.find("m")])
-
+                        #height=float(filename[:filename.find("m")])
+                        height=2.5
                         #get the ground truth value.
                         ground_truth=filename[6:(filename[6:].find("_")+6)]#(filename.find("pred")+1):(filename.find("_")-1)
                                                 
                         # Load the image.
                         image = Image.open(str(dir_path+str(filename))).convert("RGB")
                         image.load()
-
+                        image = image.filter(ImageFilter.GaussianBlur(2))
+                        #plt.imshow(image) 
+                        #plt.show()
                         stridex,stridey,clst,tre,sqz=mainf(
                         
                         model,                                                                                              #model to load.

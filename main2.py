@@ -67,7 +67,7 @@ def mainf(
     
     if showimage:
         print("Showing image...   ")
-        showimagefun(image,density_map,clsmap,deh,dew,ground_truth,textadd=text_add,showout=False)
+        showimagefun(image,density_map,clsmap,deh,dew,ground_truth,textadd=text_add,showout=True,height=height)
 
     
     return stridex,stridey, numlist, tresh, sqsz

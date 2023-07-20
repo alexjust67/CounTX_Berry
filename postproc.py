@@ -18,7 +18,7 @@ def postprocess(density_map,tresh):
 
 def boxfilter(a,shape):
     
-    rag=shape//100
+    rag=round(-3*shape+35)
     while not chk_prime(rag):
         rag+=1
 
@@ -38,15 +38,15 @@ def chk_prime(n):
         return False
 
 #show the image with the density map and the clusters.
-def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textadd=""):
+def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textadd="",height=0):
     
     a=np.clip(clslst*255,0,255)
     a=Image.fromarray(a)
     a=a.convert('L')
     a=a.resize((density_map.shape[1],density_map.shape[0]))
-    a=boxfilter(a,density_map.shape[1])
+    a=boxfilter(a,height)
 
-    a=a.filter(ImageFilter.GaussianBlur(radius = 70))
+    a=a.filter(ImageFilter.GaussianBlur(radius = -8.1*height+96.9))
     a=np.array(a)
     a_cv2 = 255//np.max(a)*a
     im_color = cv2.applyColorMap(a_cv2, cv2.COLORMAP_JET)
