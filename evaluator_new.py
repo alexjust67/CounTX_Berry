@@ -14,10 +14,10 @@ if (False):
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 else:
-    dir_path='/home/agiustina/CounTX_Berry/img/renders/2/'                                #path to the directory containing the images.
-    dir_path_names='/home/agiustina/CounTX_Berry/img/renders/2/'                      #path to the directory containing the images names.
-    cvs_path='/home/agiustina/CounTX_Berry/cvs_data/data.cvs'                              #path to the cvs file.
-    ckp_path='/home/agiustina/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
+    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                                #path to the directory containing the images.
+    dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/3/'                      #path to the directory containing the images names.
+    cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
+    ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 
 # Load model.
 device= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")      #use gpu if available.

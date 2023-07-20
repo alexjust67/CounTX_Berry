@@ -41,8 +41,8 @@ def chk_prime(n):
 def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textadd=""):
     
     a=np.clip(clslst*255,0,255)
+    a=np.clip(clslst*255,0,255)
     a=Image.fromarray(a)
-    #change a to 'L'
     a=a.convert('L')
     a=a.resize((density_map.shape[1],density_map.shape[0]))
     a=boxfilter(a,density_map.shape[1])
