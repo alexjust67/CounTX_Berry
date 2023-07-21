@@ -15,13 +15,13 @@ if (False):
     cvs_path='./cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='./chkp/paper-model.pth'                           #path to the checkpoint.
 elif (False):
-    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/drone/'                                #path to the directory containing the images.
+    dir_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/datas/images/'                                #path to the directory containing the images.
     dir_path_names='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/img/renders/drone/'                      #path to the directory containing the images names.
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 else:
-    dir_path='/home/agiustina/CounTX_Berry/img/renders/drone/'                                  #path to the directory containing the images.
-    dir_path_names='/home/agiustina/CounTX_Berry/img/renders/drone/'                            #path to the directory containing the images names.
+    dir_path='/home/agiustina/CounTX_Berry/img/datas/images/'                                  #path to the directory containing the images.
+    dir_path_names='/home/agiustina/CounTX_Berry/img/datas/images/'                            #path to the directory containing the images names.
     cvs_path='/home/agiustina/CounTX_Berry/cvs_data/data.csv'                                   #path to the cvs file.
     ckp_path='/home/agiustina/CounTX_Berry/chkp/paper-model.pth'                                #path to the checkpoint.
 
@@ -47,7 +47,7 @@ df.to_csv(cvs_path)
 #VARIABLES
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
 sqsz=[350]
-adap_krnl=True
+adap_krnl=False
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
 tresh=[0.45]
@@ -62,7 +62,7 @@ mxlen=[50]
 stride=[[50,50]]
 
 #filter the cluster by color
-colorfilter=True
+colorfilter=False
 
 #queryes to feed the model.
 queryes=[["the number of berries"]]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
