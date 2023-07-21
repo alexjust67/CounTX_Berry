@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.image as mpimg
-import matplotlib.patches as patches
-import torch
 from scipy import ndimage
 import cv2
 from PIL import Image, ImageFilter
@@ -16,16 +14,20 @@ def postprocess(density_map,tresh):
 
     return density_map
 
+#apply a Max box filter to the density map.
 def boxfilter(a,shape):
     
+    #find a suitable kernel size
     rag=round(-3*shape+35)
     while not chk_prime(rag):
         rag+=1
 
+    #apply the filter
     a=a.filter(ImageFilter.MaxFilter(rag))
     
     return a
 
+#check if a number is prime (used to find suitable kernel size).
 def chk_prime(n):
     if n>1:
         for i in range(2, n//2+1):
@@ -38,30 +40,36 @@ def chk_prime(n):
         return False
 
 #show the image with the density map and the clusters.
-def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textadd="",height=0):
+def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textadd="",height=0,generalize_results=False):
     
-    a=np.clip(clslst*255,0,255)
-    a=Image.fromarray(a)
-    a=a.convert('L')
-    a=a.resize((density_map.shape[1],density_map.shape[0]))
-    a=boxfilter(a,height)
-
-    a=a.filter(ImageFilter.GaussianBlur(radius = -8.1*height+96.9))
-    a=np.array(a)
-    a_cv2 = 255//np.max(a)*a
-    im_color = cv2.applyColorMap(a_cv2, cv2.COLORMAP_JET)
-    cv2.imwrite(f"/home/agiustina/CounTX_Berry/img/renders/dronemap/droneres/{textadd}",im_color)
+    if generalize_results:
+        a=np.clip(clslst*255,0,255)
+        a=Image.fromarray(a)
+        a=a.convert('L')
+        a=a.resize((density_map.shape[1],density_map.shape[0]))
+        a=boxfilter(a,height)
+        a=a.filter(ImageFilter.GaussianBlur(radius = -8.1*height+96.9))
+        a=np.array(a)
+    else:
+        a=np.clip(clslst*255,0,255)
+    
+    #save the image.
+    if (False):
+        a_cv2 = 255//np.max(a)*a
+        im_color = cv2.applyColorMap(a_cv2, cv2.COLORMAP_JET)
+        cv2.imwrite(f"/home/agiustina/CounTX_Berry/img/renders/dronemap/droneres/{textadd}",im_color)
 
     fig,ax = plt.subplots(1,3,sharex=True,sharey=True)
+    
+    #plot original image
     ax[0].imshow(img,extent=(0,density_map.shape[1],density_map.shape[0],0))
     
-    #add a colorbar to the second and third axes.
-
+    #plot cluster map
     ax[1].imshow(img,extent=(0,dew,deh,0))
     im=ax[1].imshow(a, cmap='jet', interpolation='nearest',alpha=1)
-    
     plt.colorbar(im,ax=ax[1],fraction=0.036, pad=0.04)
     
+    #plot density map
     im=ax[2].imshow(density_map, cmap='jet', interpolation='nearest',alpha=1)
     plt.colorbar(im,ax=ax[2],fraction=0.036, pad=0.04)
     
@@ -70,19 +78,27 @@ def showimagefun(img,density_map,clslst,deh,dew,ground_truth,showout=True,textad
     if showout: plt.show()
     plt.close('all')
 
-
+#count the number of clusters in the density map.
 def clustercount(density_map, treshold,rgb_image, mxlen=17,colorfilter=False):
+    #treshold the density map
     density_map = postprocess(density_map, treshold)
+    #find the clusters
     density_map = ndimage.measurements.label(density_map)[0]
+    #set to zero the clusters with more than mxlen elements
     density_map = set_to_zero(density_map, mxlen)
+    #re-index the clusters
     density_map = ndimage.measurements.label(density_map)[0]
-    density_map = set_to_zero(density_map, mxlen)
+    #if colorfilter is true, remove the clusters that do not contain any red pixels in the corresponding region of the RGB image
     if colorfilter:
         density_map = remove_nonred_clusters(density_map, rgb_image)
+        #re-index the clusters
         density_map = ndimage.measurements.label(density_map)[0]
+    #find the number of clusters
     maxval = np.max(density_map)
+
     return maxval,density_map
 
+# Remove clusters that do not contain any red pixels in the corresponding region of the RGB image
 def remove_nonred_clusters(density_map, rgb_image):
     #convert to numpy  
     density_map = np.array(density_map)
@@ -95,8 +111,8 @@ def remove_nonred_clusters(density_map, rgb_image):
     resized_image_hsv = cv2.cvtColor(resized_image, cv2.COLOR_RGB2HSV)
 
     # Thresholds for red color range in HSV
-    lower_red = np.array([0, 50, 50])   # Adjust these values as needed
-    upper_red = np.array([10, 255, 255])   # Adjust these values as needed
+    lower_red = np.array([0, 50, 50])       # Adjust values as needed
+    upper_red = np.array([10, 255, 255])    # Adjust values as needed
 
     # Create a binary mask based on the red color range
     red_mask = cv2.inRange(resized_image_hsv, lower_red, upper_red)
@@ -114,7 +130,9 @@ def remove_nonred_clusters(density_map, rgb_image):
 
     return density_map
 
+#set to zero all the clusters with more than x elements.
 def set_to_zero(arr, x):
+    
     unique_values, counts = np.unique(arr, return_counts=True)
     values_to_zero = unique_values[counts > x]
     
@@ -123,6 +141,7 @@ def set_to_zero(arr, x):
     
     return arr
 
+#the function that normalizes the image, it creates a two-segment function that if b=0 is a straight line from (0,0) to (255,255) and if it is 1 it is the sides of the tirangle created from the line.
 def function2(x,b):
     
     bx=(255/2)+b*(255/2)
@@ -131,6 +150,7 @@ def function2(x,b):
 
     return x
 
+#normalize the image to have a mean of 'mean'.
 def normalize(img,mean,show=False):
     
     img=np.array(img,dtype=np.uint8)

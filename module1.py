@@ -250,6 +250,7 @@ def runmodel(image,text,model,device='cpu',showkern=False):
 
     return density_map
 
+#split the image (without stride)
 def split_image(image,sq_size=224):
     
     #get image size and rescale it to the closest multiple of sq_size.
@@ -273,6 +274,7 @@ def split_image(image,sq_size=224):
     
     return w2,h2,np.transpose(im,(3,0,1,2))
 
+#split the image (with stride)
 def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended as the overlap between squares.
 
     #get image size and find the closest multiple of sq_size rounded to the next integer to find the number of squares in each dimension, 
@@ -324,7 +326,8 @@ def split_image_stride(image,sq_size=224,stride=50):#NB: stride here is intended
 
 
     return stridex,stridey,len(range(0, w, sq_size-stridex)),len(range(0, h, sq_size-stridey)),np.transpose(im,(3,0,1,2)),cor
-    
+
+#calculate the density map
 def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224,stride=50,showkern=False,norm=0,shownorm=False):
     
     # Define preprocessing.
@@ -348,6 +351,7 @@ def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224
         dew=math.floor((dew/sqsz)*384)
         stridex,stridey,w1,h1,image2,coord=split_image_stride(copy.deepcopy(image),sqsz,stride=stride)
     
+    #loop through the queries, if there is more than one it will average the density maps.
     for text in query:
 
         enc_txt=tokenizer(text)
@@ -419,4 +423,5 @@ def density_map_creator(image,model,text_add,query,dm_save,device="cpu",sqsz=224
     
     density_map=density_tot/len(query)
 
+    #return the density map, the height and width of the final density image, the stride values.
     return density_map,dew,deh,stridex,stridey

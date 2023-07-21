@@ -1,25 +1,11 @@
-from functools import partial
 import math
 import copy
-from torchvision import transforms
-import torch
-import torch.nn as nn
-import torch.nn.functional as F
-from torchvision.transforms.functional import InterpolationMode
 from PIL import Image
-import open_clip
 import matplotlib.pyplot as plt
 import numpy as np
-from models_vit import CrossAttentionBlock
-from util.pos_embed import get_2d_sincos_pos_embed
-import matplotlib.image as mpimg
 import time
 import module1 as m1
-from postproc import clustercount,postprocess,showimagefun,normalize
-import matplotlib.patches as patches
-import copy
-import cv2
-from scipy import signal
+from postproc import clustercount,showimagefun
 
 def mainf(
         model,
@@ -40,35 +26,29 @@ def mainf(
         colorfilter=False,
         height=0,
         adap_krnl=False,
+        generalize_results=False,
 ):
-    
+    #if the adaptive kernel is used, the size of the kernel is calculated based on the height of the drone.
     if adap_krnl:
         sqsz=round(-174*height+1281)
 
-
+    #Model module.
     density_map,dew,deh,stridex,stridey=m1.density_map_creator(image,model,text_add,query,dm_save,device=device,sqsz=sqsz,stride=stride,showkern=showkern,norm=norm,shownorm=shownorm)
-    
-    dencp=copy.deepcopy(density_map)
 
     print("Calculating clusters...   ")
     
     strt=time.time()
-    numlist=[]
-    x=[]
-    i=0
 
-    for tre in tresh:
-        clsnum,clsmap=clustercount(density_map,tre,image,mxlen=mxlen,colorfilter=colorfilter)
-        numlist.append(clsnum)
-        i+=1
-        if i % 50 == 0: print("Done ",i/len(tresh)*100,"%                   ",end="\r")
-    
+    #clusters module.
+    clsnum,clsmap=clustercount(density_map,tresh,image,mxlen=mxlen,colorfilter=colorfilter)
+
     print("Done calculating clusters. Time: ",round(time.time()-strt,2),"s")
     
+    #postprocessing/showing module.
     if showimage:
         print("Showing image...   ")
-        showimagefun(image,density_map,clsmap,deh,dew,ground_truth,textadd=text_add,showout=True,height=height)
+        showimagefun(image,density_map,clsmap,deh,dew,ground_truth,textadd=text_add,showout=True,height=height,generalize_results=generalize_results)
 
-    
-    return stridex,stridey, numlist, tresh, sqsz
+    #return the stride values, the number of clusters, the treshold value, the size of the kernel.
+    return stridex,stridey, clsnum, tresh, sqsz
 

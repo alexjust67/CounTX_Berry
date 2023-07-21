@@ -6,7 +6,6 @@ import module1 as m1
 import open_clip
 from PIL import Image
 from PIL import ImageFilter
-import json 
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -21,31 +20,37 @@ elif (False):
     cvs_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
     ckp_path='D:/Vstudio/Vscode/CounTX_Berry/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
 else:
-    dir_path='/home/agiustina/CounTX_Berry/img/renders/drone/'                                #path to the directory containing the images.
-    dir_path_names='/home/agiustina/CounTX_Berry/img/renders/drone/'                      #path to the directory containing the images names.
-    cvs_path='/home/agiustina/CounTX_Berry/cvs_data/data.csv'                              #path to the cvs file.
-    ckp_path='/home/agiustina/CounTX_Berry/chkp/paper-model.pth'                           #path to the checkpoint.
+    dir_path='/home/agiustina/CounTX_Berry/img/renders/drone/'                                  #path to the directory containing the images.
+    dir_path_names='/home/agiustina/CounTX_Berry/img/renders/drone/'                            #path to the directory containing the images names.
+    cvs_path='/home/agiustina/CounTX_Berry/cvs_data/data.csv'                                   #path to the cvs file.
+    ckp_path='/home/agiustina/CounTX_Berry/chkp/paper-model.pth'                                #path to the checkpoint.
 
 # Load model.
 device= torch.device("cuda:0" if torch.cuda.is_available() else "cpu")      #use gpu if available.
 model = m1.main_counting_network()
-checkpoint = torch.load(ckp_path, map_location=device)      #load the checkpoint.
-model.load_state_dict(checkpoint["model"], strict=False)                    #load the model.
 
+#load the checkpoint.
+checkpoint = torch.load(ckp_path, map_location=device)
+
+#load the model.      
+model.load_state_dict(checkpoint["model"], strict=False)                    
+
+#prepare the files
 dirfiles=len([entry for entry in os.listdir(dir_path_names) if os.path.isfile(os.path.join(dir_path_names, entry))])    #count the number of files in the directory.
+ind=0
 
 #prepare the dataframe.
-d = {'img': [], 'exp_val': [], 'clus_pred': [], 'treshold': [], 'kern_size': [], 'text': [], 'clus-error': [],'delta_bacche_abs':[],'delta_bacche':[]}
+d = {'indx':[],'img': [], 'exp_val': [], 'clus_pred': [], 'treshold': [], 'kern_size': [], 'query': [], 'clus-error': [],'delta_bacche_abs':[],'delta_bacche':[]}
 df = pd.DataFrame(data=d)
 df.to_csv(cvs_path)
 
-
+#VARIABLES
 #kernel sizes, this is the size of the square that will be fed to the model (after being reshaped to 224*224).
 sqsz=[350]
 adap_krnl=True
 
 #tresh=[[y/1000 for y in range(20,80,5)]]#best
-tresh=[[0.45]]
+tresh=[0.45]
 
 #normalization value.
 norm=0
@@ -59,8 +64,13 @@ stride=[[50,50]]
 #filter the cluster by color
 colorfilter=True
 
+#queryes to feed the model.
+queryes=[["the number of berries"]]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
+
+
 #visualization parameters.
 showimage=True
+generalize_results=False
 #save density map as npy.
 density_datasave=False
 #show the kernel.
@@ -68,12 +78,9 @@ showkern=False
 #show normalization
 shownorm=True
 
-#queryes to feed the model.
-queryes=[["the number of berries"]]#,"the number of berries", "a photo of the raspberries","a photo of the berries", "a drone image of the raspberries","a drone image of the berries","the berries on the ground"]  #"the berry", "the berries on the ground","the red berries","the number of red berries","the number of raspberries", "the raspberries"
-
 #template.format('berries') for template in templates]
 #loop through the parameters.
-iterat=1
+ind=0
 for strid in stride:
     for tre in tresh:
         for mxl in mxlen:
@@ -84,18 +91,18 @@ for strid in stride:
                         
                         filename = os.fsdecode(file)
                         
+                        #get the height of the drone, if 0 all functions that require the height will be deactivated.
                         #height=float(filename[:filename.find("m")])
-                        height=2.5
-                        #get the ground truth value.
-                        ground_truth=filename[6:(filename[6:].find("_")+6)]#(filename.find("pred")+1):(filename.find("_")-1)
+                        height=0
+
+                        #get the ground truth value for CRAID dataset.
+                        ground_truth=filename[6:(filename[6:].find("_")+6)]
                                                 
                         # Load the image.
                         image = Image.open(str(dir_path+str(filename))).convert("RGB")
                         image.load()
-                        image = image.filter(ImageFilter.GaussianBlur(2))
-                        #plt.imshow(image) 
-                        #plt.show()
-                        stridex,stridey,clst,tre,sqz=mainf(
+
+                        stridex,stridey,clsti,tre,sqz=mainf(
                         
                         model,                                                                                              #model to load.
                                                 
@@ -113,7 +120,7 @@ for strid in stride:
                         
                         tresh=tre,                                                                                          #image filtering treshold, values under this will not be taken into consideration by the clusterfinder.
 
-                        text_add=filename,           #text to add to the print.
+                        text_add=filename,                                                                                  #text to add to the print.
 
                         ground_truth=ground_truth,                                                                          #ground truth value.
 
@@ -131,24 +138,25 @@ for strid in stride:
                         
                         height=height,                                                                                      #height of the drone.
                         
-                        adap_krnl=adap_krnl,                                                                                    #use adaptive kernel.
+                        adap_krnl=adap_krnl,                                                                                #use adaptive kernel.
+                        
+                        generalize_results=generalize_results,                                                              #generalize the results.
                         )
                         
-                        ind=0
-
-                        for clsti in clst: 
-                            try:
-                                ground_truth=int(ground_truth)
-                            except:
-                                ground_truth=0
-                            
-                            d2 = {'img': [filename], 'exp_val': [ground_truth], 'clus_pred': [clsti], 'treshold': [tre[ind]], 'kern_size': [sqz], 'text': [str(text)], 'clus-error': [(clsti-int(ground_truth))**2],'delta_bacche_abs':[abs(int(ground_truth)-clsti)],'delta_bacche':[clsti-int(ground_truth)]}
+                        #create the dataframe.
+                        try:
+                            ground_truth=int(ground_truth)
+                        except:
+                            ground_truth=0
                         
-                            #append the data to the dataframe.
-                            df2=pd.DataFrame(data=d2)
-                            df=df.append(df2)
-                            ind+=1
-                        iterat+=1
+                        d2 = {'indx':[ind],'img': [filename], 'exp_val': [ground_truth], 'clus_pred': [clsti], 'treshold': [tre], 'kern_size': [sqz], 'query': [str(text)], 'clus-error': [(clsti-int(ground_truth))**2],'delta_bacche_abs':[abs(int(ground_truth)-clsti)],'delta_bacche':[clsti-int(ground_truth)]}
+                        ind+=1
+
+                        #append the data to the dataframe.
+                        df2=pd.DataFrame(data=d2)
+                        df=df.append(df2)
+
+                        #save the dataframe to file and delete.
                         df.to_csv(cvs_path,mode='a', header=False)
                         df = df[0:0]
 

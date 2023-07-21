@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 #this script is used to parse the data from the csv files and plot them.
+
+
+
 toghether=False      #used to compare different kernel sizes.
 
 #import the dataframe
